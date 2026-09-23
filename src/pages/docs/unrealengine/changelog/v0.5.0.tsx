@@ -3,13 +3,12 @@ import type { Release } from './types';
 export const v0_5_0: Release = {
   version: 'v0.5.0',
   date: 'TBD',
-  summary: 'Added authored item knowledge and object perception, with richer personal memory, conversation, spatial reasoning, and behavior continuity.',
+  summary: 'Added open conversation, authored item knowledge and object perception, alongside improvements to personal memory, spatial reasoning and behavior continuity.',
   highlights: [
+    'Open conversations support groups, changing participants, public remarks, overhearing and self-talk.',
     'Reuse existing item data through Item Knowledge Libraries and give each NPC distinct starting knowledge.',
-    'Added a Perceivable Object authoring workflow with geometry-aware visibility and occlusion',
-    'NPCs maintain individual knowledge of people and objects, with selective attention shaped by their current situation',
-    'Improved remembered knowledge and conversation context for known people and objects',
-    'Improved use of known rooms, activity context, and completed progress when choosing and continuing behavior',
+    'Added a Perceivable Object authoring workflow with geometry-aware visibility and occlusion.',
+    'Improved NPC-specific knowledge, memory, conversation context, spatial reasoning and behavior continuity.',
   ],
   content: (
     <div className="space-y-12">
@@ -18,6 +17,9 @@ export const v0_5_0: Release = {
         <ul className="list-disc space-y-3 text-white ml-6">
           <li>
             NPCs can perceive authored objects, retain useful knowledge about them, and use that knowledge in behavior and conversation alongside what they know about other characters.
+          </li>
+          <li>
+            Conversations support changing groups and individually heard speech, with each NPC deciding how to participate.
           </li>
           <li>
             These improvements extend the existing intention-driven behavior system. Authors continue to define their characters, world knowledge, and gameplay actions without managing a separate cognition workflow.
@@ -80,7 +82,28 @@ export const v0_5_0: Release = {
       </div>
 
       <div>
-        <h2 className="text-2xl font-bold text-white mb-6">5. Memory and Conversation</h2>
+        <h2 className="text-2xl font-bold text-white mb-6">5. Open Conversation</h2>
+        <ul className="list-disc space-y-3 text-white ml-6">
+          <li>
+            <strong>Flexible participation.</strong> Characters can take part in individual or group conversations, join an exchange, leave independently, or return later. NPCs can contribute, listen, decline or defer according to their character and circumstances.
+          </li>
+          <li>
+            <strong>Conversation beyond a fixed group.</strong> Public remarks, quiet asides, overheard exchanges and audible self-talk do not require every listener to become a participant.
+          </li>
+          <li>
+            <strong>Individual hearing and understanding.</strong> Each NPC responds to the speech it actually hears. Arriving late does not reveal earlier dialogue, and hearing a remark does not require answering it.
+          </li>
+          <li>
+            <strong>Conversation-aware behavior.</strong> NPCs pause incompatible movement and work while engaged. What they hear can influence whether they resume their previous activity or choose something different afterward.
+          </li>
+          <li>
+            <strong>Familiar authoring, flexible presentation.</strong> Existing character descriptions, relationships and world knowledge guide conversation. Your game retains control over player input, accepting or declining approaches, dialogue UI, animation and audio.
+          </li>
+        </ul>
+      </div>
+
+      <div>
+        <h2 className="text-2xl font-bold text-white mb-6">6. Personal Memory and Knowledge</h2>
         <ul className="list-disc space-y-3 text-white ml-6">
           <li>
             Meaningful encounters can build familiarity with people and objects. Learned names and accepted corrections or withdrawals are retained more consistently, while routine visibility alone does not create a permanent record of every prop.
@@ -98,7 +121,7 @@ export const v0_5_0: Release = {
       </div>
 
       <div>
-        <h2 className="text-2xl font-bold text-white mb-6">6. Spatial Reasoning and Behavior Continuity</h2>
+        <h2 className="text-2xl font-bold text-white mb-6">7. Spatial Reasoning and Behavior Continuity</h2>
         <ul className="list-disc space-y-3 text-white ml-6">
           <li>
             Known place descriptions and parent/subarea relationships are used more consistently when forming intentions and selecting movement destinations. An NPC outside a building can consider a known interior area directly, subject to live movement validation, without requiring a stop at the broader building first.
@@ -116,7 +139,7 @@ export const v0_5_0: Release = {
       </div>
 
       <div>
-        <h2 className="text-2xl font-bold text-white mb-6">7. Shared Visual Configuration and Upgrade Notes</h2>
+        <h2 className="text-2xl font-bold text-white mb-6">8. Shared Visual Configuration and Upgrade Notes</h2>
         <ul className="list-disc space-y-3 text-white ml-6">
           <li>
             Character Sight, Object Vision, and visual place discovery use the same Unreal Sight configuration and observer viewpoint while retaining their own sensing behavior. The editor's Visual Perception Envelope preview shows the shared viewing configuration, not guaranteed visibility of individual targets.
@@ -133,6 +156,12 @@ export const v0_5_0: Release = {
         </p>
         <p className="text-white mt-4">
           Library changes take effect in a new session. They do not overwrite the personal knowledge of NPCs already initialized or restored from a save.
+        </p>
+        <p className="text-white font-semibold mt-6 mb-3">
+          Conversation integrations
+        </p>
+        <p className="text-white">
+          Update custom player-conversation integrations to use <code className="bg-slate-800/50 px-2 py-1 rounded">SubmitSpeech</code> for speech and <code className="bg-slate-800/50 px-2 py-1 rounded">DeclareParticipation</code> for joining, declining or leaving. Use <code className="bg-slate-800/50 px-2 py-1 rounded">OnContactOffered</code> for incoming invitations, <code className="bg-slate-800/50 px-2 py-1 rounded">OnParticipationChanged</code> and <code className="bg-slate-800/50 px-2 py-1 rounded">GetConversationState</code> for conversation UI, <code className="bg-slate-800/50 px-2 py-1 rounded">OnSpeechReceived</code> for heard text, and <code className="bg-slate-800/50 px-2 py-1 rounded">OnSpeechOutcome</code> for delivery results. Speech can be submitted without joining a conversation, and successful submission does not guarantee an NPC reply or accepted participation.
         </p>
       </div>
     </div>
