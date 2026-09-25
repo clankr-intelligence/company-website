@@ -4,6 +4,8 @@ import CoreNPCSetupDocs from '../../../components/docs/CoreNPCSetupDocs';
 import ActionsAndMovementDocs from '../../../components/docs/ActionsAndMovementDocs';
 import SpatialAuthoringDocs from '../../../components/docs/SpatialAuthoringDocs';
 import PerceptionDocs from '../../../components/docs/PerceptionDocs';
+import ItemKnowledgeDocs from '../../../components/docs/ItemKnowledgeDocs';
+import OpenConversationDocs from '../../../components/docs/OpenConversationDocs';
 import MemoryAndPersistenceDocs from '../../../components/docs/MemoryAndPersistenceDocs';
 import APIReferenceDocs from '../../../components/docs/APIReferenceDocs';
 
@@ -49,6 +51,12 @@ export default function AuthoringGuide() {
             </div>
             <div id="perception" className="scroll-mt-24">
               <PerceptionDocs />
+            </div>
+            <div id="item-knowledge" className="scroll-mt-24">
+              <ItemKnowledgeDocs />
+            </div>
+            <div id="open-conversation" className="scroll-mt-24">
+              <OpenConversationDocs />
             </div>
             <div id="memory-and-persistence" className="scroll-mt-24">
               <MemoryAndPersistenceDocs />

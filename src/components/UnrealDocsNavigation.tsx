@@ -16,6 +16,8 @@ const AUTHORING_SECTIONS = [
   { id: 'actions-and-movement', label: 'Actions and Movement' },
   { id: 'spatial-authoring', label: 'Spatial Authoring' },
   { id: 'perception', label: 'Perception' },
+  { id: 'item-knowledge', label: 'Item Knowledge and Object Understanding' },
+  { id: 'open-conversation', label: 'Open Conversation' },
   { id: 'memory-and-persistence', label: 'Memory, Continuity, and Persistence' },
   { id: 'api-reference', label: 'API Reference' },
 ] as const;

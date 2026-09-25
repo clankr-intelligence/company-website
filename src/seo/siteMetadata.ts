@@ -48,7 +48,7 @@ const STATIC_PAGES: readonly SeoPageDefinition[] = [
     path: '/docs/unrealengine/quickstart',
     title: 'RealisticNPCs Quick Start for Unreal Engine',
     description:
-      'Install and configure RealisticNPCs, author an NPC and its world context, register gameplay actions, and run a first Unreal Engine test.',
+      'Set up a RealisticNPCs character and gameplay action in Unreal Engine, then try object perception, starting item knowledge, and conversation.',
     indexable: true,
     openGraphType: 'website',
   },
@@ -72,7 +72,7 @@ const STATIC_PAGES: readonly SeoPageDefinition[] = [
     path: '/docs/unrealengine/authoring-guide',
     title: 'RealisticNPCs NPC Authoring Guide',
     description:
-      'Author RealisticNPCs characters, actions, movement, spatial knowledge, perception, memory, persistence, and Unreal Engine integrations.',
+      'Author RealisticNPCs characters, typed actions, places, perceivable objects, item knowledge, open conversations, and persistent memory in Unreal Engine.',
     indexable: true,
     openGraphType: 'website',
   },

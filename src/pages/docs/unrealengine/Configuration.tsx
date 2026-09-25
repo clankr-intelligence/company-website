@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import UnrealDocsNavigation from '../../../components/UnrealDocsNavigation';
 
 const worldDescriptionExample = `Aeldenvale is a rural fantasy frontier shaped by scattered villages, old forest roads, seasonal market days, and local customs around hospitality and shared labor. Most people travel by foot, cart, or horse, and news moves slowly unless carried by merchants, clergy, guards, or travelers.
@@ -104,6 +105,9 @@ export default function Configuration() {
                 <p>
                   <strong>Validate with Daemon</strong> asks the managed daemon to check the current panel values for structural and configuration consistency. This does not contact every configured provider, test model availability, or prove that every stored credential is valid.
                 </p>
+                <p>
+                  After saving changes to services, models, or usage targets, restart any active PIE session or game to apply them. Saving and validation do not update an active play session.
+                </p>
                 <p className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 text-blue-200">
                   If an existing profile is malformed, the panel reports the error rather than silently replacing it. Repair or remove the invalid profile, then reopen the panel and save a valid configuration.
                 </p>
@@ -136,7 +140,7 @@ export default function Configuration() {
                   <div className="border-l-4 border-blue-500/50 pl-6">
                     <code className="bg-white/20 px-2 py-1 rounded">bAutoApplyInitialTime</code> and <code className="bg-white/20 px-2 py-1 rounded">InitialTime</code>
                     <p className="mt-2">
-                      Choose the initial in-game time used when a continuity does not already provide saved world time.
+                      Choose the initial in-game time used when the current map has no saved time. Map time is persisted separately from NPC continuity.
                     </p>
                   </div>
 
@@ -165,13 +169,16 @@ export default function Configuration() {
               <h2 className="text-3xl font-bold text-white mb-6">World Description</h2>
               <div className="space-y-6 text-gray-300 text-lg leading-relaxed">
                 <p>
-                  Provide the world description either in <code className="bg-white/20 px-2 py-1 rounded">InlineWorldDescription</code> or through <code className="bg-white/20 px-2 py-1 rounded">WorldDescriptionFile</code>. Inline text is convenient for shorter descriptions and quick iteration. A file is usually better for longer descriptions maintained outside Project Settings.
+                  Provide the world description either in <code className="bg-white/20 px-2 py-1 rounded">InlineWorldDescription</code> or through <code className="bg-white/20 px-2 py-1 rounded">WorldDescriptionFile</code>. Inline text is convenient for shorter descriptions. A file is useful for longer descriptions maintained outside Project Settings; relative file paths are resolved from the project directory.
                 </p>
                 <p className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 text-yellow-200">
                   If <code className="bg-white/20 px-2 py-1 rounded">InlineWorldDescription</code> is non-empty, it takes precedence over <code className="bg-white/20 px-2 py-1 rounded">WorldDescriptionFile</code>.
                 </p>
                 <p>
-                  The description should cover global context that applies broadly across NPCs: setting, culture, technology level, social rules, major institutions, and constraints NPCs should respect. Individual biographies, starting relationships, and place-specific details belong in NPC and spatial authoring instead.
+                  The description is loaded on first use and cached for the editor or game process. Restart the editor or game after changing these settings or the file contents; restarting PIE or a daemon session alone does not reload them. A missing or unreadable file leaves the initial description empty and is not retried automatically. File-based projects can explicitly refresh the cached description through the C++ function <code className="bg-white/20 px-2 py-1 rounded">RNPCsUtilities::LoadWorldDescription(Filepath)</code> before starting a new session. This does not change the description in an active session.
+                </p>
+                <p>
+                  The description should cover global context that applies broadly across NPCs: setting, culture, technology level, social rules, major institutions, and constraints NPCs should respect. Use NPC profiles for individual biographies and starting relationships, spatial authoring for place-specific knowledge, and <Link to="/docs/unrealengine/authoring-guide#item-knowledge" className="text-blue-400 hover:text-blue-300 underline">item knowledge assignments</Link> for item facts that only particular NPCs should initially know.
                 </p>
                 <p>
                   Keep it concise enough to be reused as context. Prioritize details that materially affect NPC decisions and interpretation of the world.
@@ -186,13 +193,16 @@ export default function Configuration() {
               <h2 className="text-3xl font-bold text-white mb-6">Time and Continuity</h2>
               <div className="space-y-6 text-gray-300 text-lg leading-relaxed">
                 <p>
-                  The configured calendar and game time provide the temporal context used by NPC behavior and memory. When saved continuity includes world time, that value takes precedence over the configured initial time.
+                  The configured calendar and game time provide the temporal context used by NPC behavior and memory. The plugin saves game time separately for each map. A map's saved time takes precedence over the configured initial time, independently of which NPC continuity is resumed.
                 </p>
                 <p>
-                  When no saved world time exists and <code className="bg-white/20 px-2 py-1 rounded">bAutoApplyInitialTime</code> is enabled, <code className="bg-white/20 px-2 py-1 rounded">InitialTime</code> supplies the starting point. Gameplay can still set world time explicitly through <code className="bg-white/20 px-2 py-1 rounded">RNPCsUtilities::SetGameWorldTime(...)</code>.
+                  When no saved time exists for the current map and <code className="bg-white/20 px-2 py-1 rounded">bAutoApplyInitialTime</code> is enabled, <code className="bg-white/20 px-2 py-1 rounded">InitialTime</code> supplies the starting point. Gameplay can still set world time explicitly through <code className="bg-white/20 px-2 py-1 rounded">RNPCsUtilities::SetGameWorldTime(...)</code>.
                 </p>
                 <p>
-                  PIE automatically creates or resumes the project's continuity. Packaged-game save flows use the continuity Blueprint APIs described in the Authoring Guide. Use the reset setting only when you intentionally want to discard the current development continuity and begin fresh.
+                  Loading an older NPC checkpoint does not rewind the map clock. If a game save must restore a matching time, store that time in the project's SaveGame and set it explicitly during loading.
+                </p>
+                <p>
+                  PIE automatically creates or resumes continuity for the project and starting persistent map. Packaged-game save flows use the <Link to="/docs/unrealengine/authoring-guide#memory-and-persistence" className="text-blue-400 hover:text-blue-300 underline">continuity Blueprint APIs in the Authoring Guide</Link>. Use the reset setting only when you intentionally want to discard the current development continuity and begin fresh.
                 </p>
                 <p className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 text-yellow-200">
                   Calendar source and date structure are part of continuity compatibility. Changing the source or Simple month-day counts requires a fresh continuity; changing only the real-time day length or month names does not. After changing a custom calendar's date interpretation, use a new asset path or begin a fresh continuity.

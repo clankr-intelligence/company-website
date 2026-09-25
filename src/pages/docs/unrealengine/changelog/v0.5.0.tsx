@@ -2,13 +2,13 @@ import type { Release } from './types';
 
 export const v0_5_0: Release = {
   version: 'v0.5.0',
-  date: 'TBD',
+  date: 'September 2026',
   summary: 'Added open conversation, authored item knowledge and object perception, alongside improvements to personal memory, spatial reasoning and behavior continuity.',
   highlights: [
     'Open conversations support groups, changing participants, public remarks, overhearing and self-talk.',
     'Reuse existing item data through Item Knowledge Libraries and give each NPC distinct starting knowledge.',
     'Added a Perceivable Object authoring workflow with geometry-aware visibility and occlusion.',
-    'Improved NPC-specific knowledge, memory, conversation context, spatial reasoning and behavior continuity.',
+    'Updated custom C++ action registration with typed parameters and clearer completion and cancellation handling.',
   ],
   content: (
     <div className="space-y-12">
@@ -55,7 +55,7 @@ export const v0_5_0: Release = {
             <strong>Give characters different starting knowledge.</strong> Choose <code className="bg-slate-800/50 px-2 py-1 rounded">Use in Current Level</code> from the library's Content Browser menu, then assign reusable collections or individual facts through each NPC's <code className="bg-slate-800/50 px-2 py-1 rounded">Starting Item Knowledge</code> controls. A herbalist can know a remedy and its preparation while another character knows only its name.
           </li>
           <li>
-            <strong>Preview what each NPC knows.</strong> Search the automatically updated preview, inspect complete facts and their sources, and distinguish included knowledge from information the NPC will not receive. Mapping and assignment problems appear alongside the preview.
+            <strong>Preview each NPC's starting knowledge.</strong> Search the automatically updated preview, inspect complete facts and their sources, and distinguish facts included in or excluded from the NPC's authored starting assignment. Mapping and assignment problems appear alongside the preview.
           </li>
           <li>
             <strong>Let knowledge inform behavior.</strong> NPCs can discuss known items, consider them when deciding what to do, and interpret encountered objects using their own knowledge and available evidence. Knowing a remedy can motivate a question or search before a specimen is encountered; ambiguous evidence can still leave identification uncertain.
@@ -157,6 +157,20 @@ export const v0_5_0: Release = {
         <p className="text-white mt-4">
           Library changes take effect in a new session. They do not overwrite the personal knowledge of NPCs already initialized or restored from a save.
         </p>
+        <p className="text-white font-semibold mt-6 mb-3">
+          Custom action registration
+        </p>
+        <ul className="list-disc space-y-3 text-white ml-6">
+          <li>
+            <strong>Update action definitions.</strong> Replace authored <code className="bg-slate-800/50 px-2 py-1 rounded">FNPCActionSpec</code> and <code className="bg-slate-800/50 px-2 py-1 rounded">FNPCActionParamSpec</code> declarations with <code className="bg-slate-800/50 px-2 py-1 rounded">FNPCActionDefinition</code> and <code className="bg-slate-800/50 px-2 py-1 rounded">FNPCActionParameterDefinition</code>. Use <code className="bg-slate-800/50 px-2 py-1 rounded">Description</code> instead of <code className="bg-slate-800/50 px-2 py-1 rounded">ActionDescription</code>. Your C++ handler parameters determine their types, <code className="bg-slate-800/50 px-2 py-1 rounded">TOptional&lt;T&gt;</code> marks optional parameters, and the registration method determines completion behavior.
+          </li>
+          <li>
+            <strong>Update asynchronous completion.</strong> Replace <code className="bg-slate-800/50 px-2 py-1 rounded">RegisterAction</code> and <code className="bg-slate-800/50 px-2 py-1 rounded">FinishNPCAction()</code> with <code className="bg-slate-800/50 px-2 py-1 rounded">RegisterUntilCompleteAction</code>. Its handler takes <code className="bg-slate-800/50 px-2 py-1 rounded">FNPCActionAttempt</code> by value as its first parameter. Call <code className="bg-slate-800/50 px-2 py-1 rounded">Succeed()</code>, <code className="bg-slate-800/50 px-2 py-1 rounded">Fail(reason)</code>, or <code className="bg-slate-800/50 px-2 py-1 rounded">Cancel(reason)</code> on that attempt. For asynchronous work, retain the supplied attempt and complete it on the game thread.
+          </li>
+          <li>
+            <strong>Use automatic completion and optional cleanup.</strong> <code className="bg-slate-800/50 px-2 py-1 rounded">RegisterInstantAction</code> still completes after its handler returns, and <code className="bg-slate-800/50 px-2 py-1 rounded">RegisterDurationAction</code> retains timer-based completion. Duration and until-complete actions can register optional cancellation cleanup to stop animations or other ongoing gameplay work when interrupted or cancelled.
+          </li>
+        </ul>
         <p className="text-white font-semibold mt-6 mb-3">
           Conversation integrations
         </p>
