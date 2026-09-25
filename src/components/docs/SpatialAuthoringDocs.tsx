@@ -8,6 +8,9 @@ export default function SpatialAuthoringDocs() {
         <p>
           Spatial authoring tells NPCs what places exist, which parts of those places matter, how places can be discovered, and what spatial knowledge an NPC should start with. Author semantically meaningful spaces explicitly; ordinary unauthored space can still be crossed by movement, but it should not be expected to support rich local behavior by itself.
         </p>
+        <p>
+          Use spatial knowledge for places and their layout. Use <a href="#perception" className="text-blue-400 hover:text-blue-300 transition-colors">Perceivable Objects</a> for physical props, and <a href="#item-knowledge" className="text-blue-400 hover:text-blue-300 transition-colors">Item Knowledge and Object Understanding</a> for information such as a herb's properties or a tool's purpose. A known place does not automatically reveal every object inside it.
+        </p>
 
         <div className="grid md:grid-cols-3 gap-4">
           <div className="bg-slate-800/40 border border-white/10 rounded-lg p-5">
@@ -93,6 +96,12 @@ export default function SpatialAuthoringDocs() {
           <h3 className="text-xl font-semibold text-white mt-8 mb-4">Discovery Components</h3>
           <p>
             Discovery authoring controls what NPCs can learn from observing the world during play. It is separate from starting knowledge: starting knowledge tells an NPC what it already knows, while discovery lets an NPC learn about visible authored places and areas.
+          </p>
+          <p className="mt-4">
+            For top-level visual discovery, set a nonempty <code className="bg-white/20 px-2 py-1 rounded">PerceptualTypeLabel</code> on the Spatial Place Anchor actor or Semantic Place component, such as "shop" or "village". This generic label is required even when discovery geometry is valid; setting <code className="bg-white/20 px-2 py-1 rounded">PlaceName</code> alone does not enable visual discovery.
+          </p>
+          <p className="mt-4">
+            Visual discovery uses the NPC controller's enabled UE Sight configuration and viewpoint, shared with character Sight and Object Vision. Configure that once using the <a href="#perception" className="text-blue-400 hover:text-blue-300 transition-colors">Perception</a> guide. On the NPC, keep <code className="bg-white/20 px-2 py-1 rounded">bIncludeVisiblePlaceCues</code> enabled and use <code className="bg-white/20 px-2 py-1 rounded">ObservationIntervalSeconds</code> to set spatial sampling cadence. Place discovery geometry and occlusion still determine which cues can be observed.
           </p>
           <div className="space-y-4 mt-4">
             <div className="border-l-4 border-blue-500/50 pl-6">

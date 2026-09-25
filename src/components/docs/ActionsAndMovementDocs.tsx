@@ -1,160 +1,153 @@
 import React from 'react';
 
+const codeClassName = 'bg-white/20 px-2 py-1 rounded';
+
 export default function ActionsAndMovementDocs() {
   return (
     <>
       <h2 className="text-3xl font-bold text-white mb-6">Actions and Movement</h2>
       <div className="space-y-8 text-gray-300 text-lg leading-relaxed">
         <p>
-          Actions are registered gameplay capabilities that the managed runtime may command while an NPC carries out its behavior. Authors define custom actions on an <code className="bg-white/20 px-2 py-1 rounded">ABaseNPCController</code> subclass, then decide which NPCs can use them through action-set assets and per-NPC overrides. Unreal validates and executes each command, then reports its outcome back to the runtime.
+          Actions are gameplay capabilities that NPCs can choose while pursuing their goals. Register them on an <code className={codeClassName}>ABaseNPCController</code> subclass, then enable the appropriate actions for each NPC through action sets. Unreal resolves the supplied targets; your handler checks the game's remaining conditions, performs the effect, and reports the result.
         </p>
 
-        <div className="grid md:grid-cols-3 gap-4">
-          <div className="bg-slate-800/40 border border-white/10 rounded-lg p-5">
-            <h3 className="text-xl font-semibold text-white mb-3">Register Actions</h3>
-            <p>
-              Override <code className="bg-white/20 px-2 py-1 rounded">RegisterNPCActions</code> on the controller and register concrete gameplay primitives with clear descriptions and typed parameters.
-            </p>
-          </div>
-          <div className="bg-slate-800/40 border border-white/10 rounded-lg p-5">
-            <h3 className="text-xl font-semibold text-white mb-3">Assign Access</h3>
-            <p>
-              Use <code className="bg-white/20 px-2 py-1 rounded">UNPCActionSetAsset</code> presets for shared roles, then use per-NPC additions or removals for exceptions.
-            </p>
-          </div>
-          <div className="bg-slate-800/40 border border-white/10 rounded-lg p-5">
-            <h3 className="text-xl font-semibold text-white mb-3">Let Movement Stay Grounded</h3>
-            <p>
-              Do not author a generic custom movement primitive for ordinary travel. The plugin owns route-aware movement through its built-in movement action and controller movement helpers.
-            </p>
-          </div>
-        </div>
-
         <div>
-          <h3 className="text-xl font-semibold text-white mt-8 mb-4">Action Registration</h3>
+          <h3 className="text-xl font-semibold text-white mt-8 mb-4">Register a Gameplay Action</h3>
           <p>
-            Register actions in the controller class that implements them. Each action needs a stable <code className="bg-white/20 px-2 py-1 rounded">ActionId</code>, a prompt-facing <code className="bg-white/20 px-2 py-1 rounded">ActionDescription</code>, and any parameters the behavior system must provide.
+            Override <code className={codeClassName}>RegisterNPCActions</code>. An <code className={codeClassName}>FNPCActionDefinition</code> supplies a stable <code className={codeClassName}>ActionId</code>, a concrete <code className={codeClassName}>Description</code>, and parameter names, descriptions, and constraints. List parameter metadata in the same order as the handler's authored parameters. The C++ signature determines their types; the registration method determines how the action finishes.
           </p>
           <p className="mt-4">
-            Prefer small, concrete gameplay primitives over broad declarative actions. For example, <code className="bg-white/20 px-2 py-1 rounded">serve_meal</code>, <code className="bg-white/20 px-2 py-1 rounded">restock_shelf</code>, or <code className="bg-white/20 px-2 py-1 rounded">inspect_door</code> gives the behavior system more grounded options than a single vague <code className="bg-white/20 px-2 py-1 rounded">do_work</code> action.
+            This example belongs in your controller subclass's implementation file. It makes a light on a perceivable object switchable and reports failure if that object no longer supplies a light. Add any project-specific reach, permission, or resource checks before applying the effect.
           </p>
-
           <div className="bg-slate-800/50 rounded-lg p-4 mt-4 overflow-x-auto">
-            <pre>
-              <code className="text-sm text-gray-300">{`void AShopkeeperController::RegisterNPCActions(FNPCActionRegistrar& Registrar)
+            <pre><code className="text-sm text-gray-300">{`#include "ShopkeeperNPCController.h"
+#include "NPCActionRegistry.h"
+#include "Components/LightComponent.h"
+#include "GameFramework/Actor.h"
+
+void AShopkeeperNPCController::RegisterNPCActions(FNPCActionRegistrar& Registrar)
 {
-    FNPCActionSpec Spec;
-    Spec.ActionId = TEXT("serve_meal");
-    Spec.ActionDescription = TEXT("prepare and serve a meal to the specified nearby character.");
+    Super::RegisterNPCActions(Registrar);
 
-    FNPCActionParamSpec GuestParam;
-    GuestParam.Name = TEXT("guest");
-    GuestParam.Type = ENPCActionParamType::CharacterRef;
-    GuestParam.Description = TEXT("character receiving the meal");
-    GuestParam.bRequired = true;
-    Spec.Parameters.Add(GuestParam);
+    const FNPCActionDefinition SetLamp(
+        TEXT("set_lamp"),
+        TEXT("Switch a nearby lamp on or off."),
+        {
+            { TEXT("lamp"), TEXT("The lamp to operate.") },
+            { TEXT("enabled"), TEXT("True to turn it on; false to turn it off.") }
+        });
 
-    Registrar.RegisterInstantAction(Spec, this, &AShopkeeperController::ServeMeal);
-}
+    Registrar.RegisterUntilCompleteAction(SetLamp,
+        [](FNPCActionAttempt Attempt, FRNPCObjectRef Lamp, bool bEnabled)
+        {
+            AActor* Actor = Lamp.Get();
+            ULightComponent* Light = IsValid(Actor)
+                ? Actor->FindComponentByClass<ULightComponent>() : nullptr;
+            if (!IsValid(Light))
+            {
+                Attempt.Fail(TEXT("The lamp is no longer available."));
+                return;
+            }
 
-void AShopkeeperController::ServeMeal(FCharacterRef Guest)
-{
-    // Trigger gameplay, animation, inventory, or quest logic here.
-}`}</code>
-            </pre>
+            Light->SetVisibility(bEnabled);
+            Attempt.Succeed();
+        });
+}`}</code></pre>
           </div>
-        </div>
-
-        <div>
-          <h3 className="text-xl font-semibold text-white mt-8 mb-4">Typed Parameters</h3>
-          <p>
-            The action system validates registered action signatures against their parameter specs. Supported parameter types are <code className="bg-white/20 px-2 py-1 rounded">String</code>, <code className="bg-white/20 px-2 py-1 rounded">Bool</code>, <code className="bg-white/20 px-2 py-1 rounded">Int32</code>, <code className="bg-white/20 px-2 py-1 rounded">Float</code>, <code className="bg-white/20 px-2 py-1 rounded">Choice</code>, <code className="bg-white/20 px-2 py-1 rounded">CharacterRef</code>, and <code className="bg-white/20 px-2 py-1 rounded">LocationRef</code>.
-          </p>
-          <ul className="list-disc list-inside pl-4 space-y-2 mt-4">
-            <li>Use <code className="bg-white/20 px-2 py-1 rounded">CharacterRef</code> when the action targets a known character.</li>
-            <li>Use <code className="bg-white/20 px-2 py-1 rounded">LocationRef</code> when the action targets a grounded spatial reference.</li>
-            <li>Use <code className="bg-white/20 px-2 py-1 rounded">Choice</code> for a closed set of safe values; provide <code className="bg-white/20 px-2 py-1 rounded">AllowedChoices</code>.</li>
-            <li>Use numeric bounds for <code className="bg-white/20 px-2 py-1 rounded">Int32</code> and <code className="bg-white/20 px-2 py-1 rounded">Float</code> parameters so generated values stay constrained.</li>
-            <li>Set <code className="bg-white/20 px-2 py-1 rounded">bRequired</code> to false only when the action can behave sensibly without that parameter.</li>
-          </ul>
           <p className="mt-4">
-            Parameter names and descriptions are prompt-facing. Keep them short, literal, and aligned with the gameplay effect the action actually performs.
+            Keep action declarations independent of spawned actors and live-world state; inspect those only when the handler executes. Making an object perceivable does not implement its gameplay actions automatically.
           </p>
         </div>
 
         <div>
-          <h3 className="text-xl font-semibold text-white mt-8 mb-4">Action Lifecycles</h3>
+          <h3 className="text-xl font-semibold text-white mt-8 mb-4">Choose Parameter Types</h3>
+          <p>
+            Handlers return <code className={codeClassName}>void</code>. Use these C++ types for authored inputs, passed by value or a supported const reference. Wrap a type in <code className={codeClassName}>TOptional&lt;T&gt;</code> when the action can run without that value; other parameters are required.
+          </p>
+          <div className="overflow-x-auto mt-4">
+            <table className="w-full text-left border-collapse">
+              <thead><tr className="border-b border-white/20"><th className="p-3 text-white">C++ type</th><th className="p-3 text-white">Use</th></tr></thead>
+              <tbody>
+                <tr className="border-b border-white/10"><td className="p-3"><code>FString</code></td><td className="p-3">Text.</td></tr>
+                <tr className="border-b border-white/10"><td className="p-3"><code>bool</code></td><td className="p-3">A true or false choice.</td></tr>
+                <tr className="border-b border-white/10"><td className="p-3"><code>int32</code>, <code>float</code></td><td className="p-3">Whole or fractional numbers, with authored bounds when needed.</td></tr>
+                <tr className="border-b border-white/10"><td className="p-3"><code>FName</code></td><td className="p-3">One of the parameter's authored allowed choices.</td></tr>
+                <tr className="border-b border-white/10"><td className="p-3"><code>FCharacterRef</code></td><td className="p-3">A live character target.</td></tr>
+                <tr className="border-b border-white/10"><td className="p-3"><code>FRNPCObjectRef</code></td><td className="p-3">A live object target.</td></tr>
+                <tr className="border-b border-white/10"><td className="p-3"><code>FEntityRef</code></td><td className="p-3">A live target that can be either a character or an object.</td></tr>
+                <tr><td className="p-3"><code>FLocationRef</code></td><td className="p-3">A spatial reference; movement needs a grounded destination.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-4">
+            Use <code className={codeClassName}>FNPCActionParameterDefinition::Plain</code> for a name and description, <code className={codeClassName}>Range</code>, <code className={codeClassName}>Minimum</code>, or <code className={codeClassName}>Maximum</code> for numeric constraints, and <code className={codeClassName}>Choices</code> for an <code className={codeClassName}>FName</code> parameter's allowed values. Keep names stable and descriptions specific to the effect the handler actually performs.
+          </p>
+          <p className="mt-4">
+            Character and object actions require current physical grounding. Remembering a person, hearing speech, or joining a conversation does not by itself make that entity available for physical interaction. Recheck a reference's <code className={codeClassName}>Get()</code> result immediately before using its actor, especially after asynchronous work. A character reference's <code className={codeClassName}>IsValid()</code> checks identity alone. Your game still owns reach, permissions, inventory, collision, and other action-specific rules.
+          </p>
+        </div>
+
+        <div>
+          <h3 className="text-xl font-semibold text-white mt-8 mb-4">Choose Completion and Cleanup</h3>
           <div className="space-y-4">
             <div className="border-l-4 border-blue-500/50 pl-6">
-              <code className="bg-white/20 px-2 py-1 rounded">RegisterInstantAction</code>
+              <code className={codeClassName}>RegisterInstantAction</code>
               <p className="mt-2">
-                Use for actions that complete immediately after their gameplay logic runs. The registrar finishes the action for you.
+                Use for synchronous work that succeeds when its handler returns. The handler takes only authored parameters and the plugin completes it automatically. Use an attempt-based handler when gameplay must report failure.
               </p>
             </div>
             <div className="border-l-4 border-blue-500/50 pl-6">
-              <code className="bg-white/20 px-2 py-1 rounded">RegisterAction</code>
+              <code className={codeClassName}>RegisterUntilCompleteAction</code>
               <p className="mt-2">
-                Use for actions that complete asynchronously, such as an animation, interaction, or movement-backed action. Call <code className="bg-white/20 px-2 py-1 rounded">FinishNPCAction()</code> when the action is actually done.
+                Use when gameplay decides the result. The first handler parameter is <code className={codeClassName}>FNPCActionAttempt</code> passed by value, followed by the authored parameters. Call <code className={codeClassName}>Succeed()</code>, <code className={codeClassName}>Fail(reason)</code>, or <code className={codeClassName}>Cancel(reason)</code> on that attempt when the work ends.
               </p>
             </div>
             <div className="border-l-4 border-blue-500/50 pl-6">
-              <code className="bg-white/20 px-2 py-1 rounded">RegisterDurationAction</code>
+              <code className={codeClassName}>RegisterDurationAction</code>
               <p className="mt-2">
-                Use for lived activity time, such as working, waiting, eating, resting, or watching. The behavior policy chooses the duration, your action starts the activity, and the plugin completes the action through its duration timer.
+                Use for ongoing activity such as working, resting, or watching. The NPC's behavior chooses the duration; your handler starts the activity and the plugin's timer completes it. A handler may also accept a leading <code className={codeClassName}>FNPCActionAttempt</code> by value to finish early or report failure while retaining timer completion.
               </p>
             </div>
           </div>
           <p className="mt-4">
-            Override <code className="bg-white/20 px-2 py-1 rounded">OnNPCActionFinished</code> when a controller needs centralized cleanup after any action finishes, such as stopping montages, clearing interaction state, or resetting temporary gameplay flags.
+            For asynchronous work, capture the supplied attempt by value and request completion on the game thread. <code className={codeClassName}>IsCurrent()</code> lets a callback check that its action still owns the work before applying an effect. A stale or repeated completion request returns false and cannot complete a newer action; it does not undo gameplay effects your callback already applied.
+          </p>
+          <p className="mt-4">
+            Duration and until-complete registrations accept an optional cancellation callable after the action callable. It receives the same authored parameters, without <code className={codeClassName}>FNPCActionAttempt</code>. Use it to stop the action's timers, animation, or other ongoing gameplay work on interruption or cancellation. This callback does not run for ordinary success or failure. <code className={codeClassName}>OnNPCActionFinished</code> remains the controller hook for common finish cleanup; keep shared cleanup safe if both paths use it.
           </p>
         </div>
 
         <div>
-          <h3 className="text-xl font-semibold text-white mt-8 mb-4">Action Sets</h3>
+          <h3 className="text-xl font-semibold text-white mt-8 mb-4">Enable Actions for Each NPC</h3>
           <p>
-            <code className="bg-white/20 px-2 py-1 rounded">UNPCActionSetAsset</code> is a reusable list of custom action IDs. Assign action-set assets to <code className="bg-white/20 px-2 py-1 rounded">ActionSetPresets</code> on an NPC, then use <code className="bg-white/20 px-2 py-1 rounded">AddedActionIds</code> or <code className="bg-white/20 px-2 py-1 rounded">RemovedActionIds</code> for one-off differences.
+            Create a <code className={codeClassName}>UNPCActionSetAsset</code> containing custom action IDs and assign it through the NPC's <code className={codeClassName}>ActionSetPresets</code>. Use <code className={codeClassName}>AddedActionIds</code> for individual additions and <code className={codeClassName}>RemovedActionIds</code> for exceptions. The assigned controller must register every enabled custom action's implementation.
           </p>
           <p className="mt-4">
-            At runtime, custom actions registered by the controller are only made available to an NPC when their action ID is enabled for that NPC. Use <code className="bg-white/20 px-2 py-1 rounded">ValidateEnabledActions</code> in the editor to catch unknown action IDs or mismatched controller classes before play.
+            Run <code className={codeClassName}>ValidateEnabledActions</code> after changing action sets or controller classes. Enabling an ID grants access to an implemented action; it does not create the action or grant knowledge about its targets.
           </p>
         </div>
 
         <div>
-          <h3 className="text-xl font-semibold text-white mt-8 mb-4">Plugin-Owned Movement</h3>
+          <h3 className="text-xl font-semibold text-white mt-8 mb-4">Movement and Presentation</h3>
           <p>
-            The built-in <code className="bg-white/20 px-2 py-1 rounded">move_to_location</code> primitive moves NPCs to exact grounded <code className="bg-white/20 px-2 py-1 rounded">LocationRef</code> targets through the spatial system. Authors should not duplicate or replace this primitive with a generic move action.
+            The plugin supplies ordinary travel through <code className={codeClassName}>move_to_location</code>. Use grounded spatial authoring rather than adding a duplicate generic movement action. Built-in movement and conversation mechanics do not need entries in custom action sets; see <a className="text-blue-400 hover:underline" href="/docs/unrealengine/authoring-guide#open-conversation">Open Conversation</a> for speech and participation integration.
           </p>
           <p className="mt-4">
-            If custom controller logic needs to move an NPC as part of a gameplay action, use the controller movement helpers instead: <code className="bg-white/20 px-2 py-1 rounded">MoveToLocation</code>, <code className="bg-white/20 px-2 py-1 rounded">MoveToCharacter</code>, or <code className="bg-white/20 px-2 py-1 rounded">MoveToActorTarget</code>. The continuation-bearing overloads are available to controller subclasses for actions that need to finish only after movement completes.
+            Custom controller gameplay can use <code className={codeClassName}>MoveToLocation</code>, <code className={codeClassName}>MoveToCharacter</code>, and <code className={codeClassName}>MoveToActorTarget</code>. A character target must already have a valid current reference; these helpers do not discover an unseen character for the NPC.
           </p>
           <p className="mt-4">
-            <code className="bg-white/20 px-2 py-1 rounded">MoveToCharacter</code> is for gameplay code that already has a valid current character reference. It should not be treated as a behavior-policy shortcut for finding or pathing to any character anywhere.
+            Check immediate Boolean results where provided; <code className={codeClassName}>true</code> is not confirmation of arrival. <code className={codeClassName}>MoveToActorTarget</code> has no return result. The <code className={codeClassName}>PostMoveLogic</code> continuations on actor movement and the protected location and character overloads run only after success. Use <code className={codeClassName}>MoveToLocationWithOutcome</code> for a location callback carrying success or failure and a reason. Also handle <code className={codeClassName}>Cancelled</code> lifecycle events; a cancellation need not invoke that callback. Character and actor movement use lifecycle events to report failure and cancellation.
           </p>
           <p className="mt-4">
-            Plugin-owned action IDs include <code className="bg-white/20 px-2 py-1 rounded">move_to_location</code>, <code className="bg-white/20 px-2 py-1 rounded">talk_to_nearby</code>, and <code className="bg-white/20 px-2 py-1 rounded">seek_conversation_at_location</code>. They are registered by the plugin and do not need to be added to action sets.
+            When movement is part of an until-complete action, retain its <code className={codeClassName}>FNPCActionAttempt</code> and settle it on immediate rejection, failed movement, or cancellation as well as successful work. Match lifecycle events to your move using <code className={codeClassName}>MoveId</code>. A callback can run before the movement helper returns, so check <code className={codeClassName}>IsCurrent()</code> before applying effects or settling from another result path. Waiting only for a success continuation can leave the action unfinished after a failed move.
           </p>
-        </div>
-
-        <div>
-          <h3 className="text-xl font-semibold text-white mt-8 mb-4">Movement Lifecycle Hooks</h3>
-          <p>
-            Override <code className="bg-white/20 px-2 py-1 rounded">OnNPCMoveLifecycleEvent</code> when animation, UI, sound, or gameplay systems need to react to plugin-controlled movement. The event includes the move ID, phase, target label, target kind, location reference, target actor or component, waypoint information, and behavior policy context.
+          <p className="mt-4">
+            Override the Blueprint-native <code className={codeClassName}>OnNPCMoveLifecycleEvent</code> to coordinate animation, sound, or UI with movement. Its <code className={codeClassName}>FNPCMoveLifecycleEvent</code> describes the move, target, and progress.
           </p>
           <ul className="list-disc list-inside pl-4 space-y-2 mt-4">
-            <li><code className="bg-white/20 px-2 py-1 rounded">Started</code> and <code className="bg-white/20 px-2 py-1 rounded">TargetResolved</code> are useful for starting locomotion or orientation state.</li>
-            <li><code className="bg-white/20 px-2 py-1 rounded">WaypointStarted</code> and <code className="bg-white/20 px-2 py-1 rounded">WaypointCompleted</code> are useful for route-aware animation or debug UI.</li>
-            <li><code className="bg-white/20 px-2 py-1 rounded">Succeeded</code>, <code className="bg-white/20 px-2 py-1 rounded">Failed</code>, and <code className="bg-white/20 px-2 py-1 rounded">Cancelled</code> are useful for cleanup and recovery.</li>
-          </ul>
-        </div>
-
-        <div className="bg-blue-500/10 border border-blue-400/20 rounded-lg p-6">
-          <h3 className="text-xl font-semibold text-white mb-3">Authoring Checklist</h3>
-          <ul className="list-disc list-inside pl-4 space-y-2">
-            <li>Register custom gameplay actions on the controller class that implements them.</li>
-            <li>Write action and parameter descriptions as if they are instructions to the behavior system.</li>
-            <li>Keep custom action IDs stable and assign them through action-set assets or per-NPC overrides.</li>
-            <li>Use plugin movement helpers and lifecycle events instead of duplicating ordinary movement primitives.</li>
-            <li>Run <code className="bg-white/20 px-2 py-1 rounded">ValidateEnabledActions</code> after changing action sets or controller classes.</li>
+            <li><code className={codeClassName}>Started</code> and <code className={codeClassName}>TargetResolved</code> identify movement startup.</li>
+            <li><code className={codeClassName}>WaypointStarted</code> and <code className={codeClassName}>WaypointCompleted</code> describe route progress.</li>
+            <li><code className={codeClassName}>Succeeded</code>, <code className={codeClassName}>Failed</code>, and <code className={codeClassName}>Cancelled</code> identify the final result.</li>
           </ul>
         </div>
       </div>
