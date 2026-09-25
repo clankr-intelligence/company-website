@@ -4,11 +4,11 @@ import { NavLink, useLocation } from 'react-router-dom';
 
 const DOC_LINKS = [
   { to: '/docs/unrealengine/introduction', label: 'Introduction' },
-  { to: '/docs/unrealengine/changelog', label: 'Changelog' },
   { to: '/docs/unrealengine/quickstart', label: 'Quick Start Guide' },
   { to: '/docs/unrealengine/setup', label: 'Setup' },
   { to: '/docs/unrealengine/configuration', label: 'Configuration' },
   { to: '/docs/unrealengine/authoring-guide', label: 'Authoring Guide' },
+  { to: '/docs/unrealengine/changelog', label: 'Changelog' },
 ] as const;
 
 const AUTHORING_SECTIONS = [
