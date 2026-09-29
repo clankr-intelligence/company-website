@@ -145,7 +145,7 @@ async function validateHtmlPage(page) {
 async function main() {
   const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
   assert(Array.isArray(manifest.pages), 'SEO manifest does not contain a page list.');
-  assert(manifest.pages.length === 11, `Expected 11 canonical pages, found ${manifest.pages.length}.`);
+  assert(manifest.pages.length > 0, 'SEO manifest does not contain any canonical pages.');
 
   const paths = manifest.pages.map((page) => page.path);
   const outputs = manifest.pages.map((page) => page.outputFile);

@@ -37,7 +37,7 @@ export default function CoreNPCSetupDocs() {
             <li>Create your NPC class from <code className="bg-white/20 px-2 py-1 rounded">ABaseNPC</code>, either in C++ or Blueprint.</li>
             <li>Create an AI controller class from <code className="bg-white/20 px-2 py-1 rounded">ABaseNPCController</code> and assign it as the NPC's AI controller class.</li>
             <li>Fill the NPC's core profile fields, including background, short-term goal, self-assessment, and authored relationships.</li>
-            <li>Assign starting spatial knowledge and action sets only as needed for the NPC's role.</li>
+            <li>Assign starting spatial knowledge, item knowledge, and action sets for the NPC's role.</li>
             <li>Run the available validation actions in the editor before testing behavior.</li>
             <li>Possess the enabled NPC with its assigned controller. Registration and autonomous behavior startup happen automatically.</li>
           </ol>
@@ -61,32 +61,16 @@ export default function CoreNPCSetupDocs() {
                 Returns the character's perceivable facts component. Use this when gameplay code needs to expose character state that nearby NPCs should perceive.
               </p>
             </div>
-            <div className="border-l-4 border-blue-500/50 pl-6">
-              <code className="bg-white/20 px-2 py-1 rounded">StartDirectedConversationWith()</code>
-              <p className="mt-2">
-                Starts a directed conversation from this character to another <code className="bg-white/20 px-2 py-1 rounded">ABaseCharacter</code>. Use the conversation lifecycle delegates for UI, animation, or gameplay reactions when a character enters or leaves a conversation.
-              </p>
-            </div>
           </div>
         </div>
 
         <div>
           <h3 className="text-xl font-semibold text-white mt-8 mb-4">Conversation Setup</h3>
           <p>
-            Conversations are built around <code className="bg-white/20 px-2 py-1 rounded">ABaseCharacter</code> participants. NPCs already inherit this through <code className="bg-white/20 px-2 py-1 rounded">ABaseNPC</code>; any other character actor that needs to participate in plugin conversations should also derive from <code className="bg-white/20 px-2 py-1 rounded">ABaseCharacter</code>.
-          </p>
-          <ul className="list-disc list-inside pl-4 space-y-2 mt-3">
-            <li>Use stable <code className="bg-white/20 px-2 py-1 rounded">CharacterName</code> values so conversations, memory, and relationship context can refer to characters clearly.</li>
-            <li>Use <code className="bg-white/20 px-2 py-1 rounded">Relationships</code> on <code className="bg-white/20 px-2 py-1 rounded">ABaseNPC</code> to seed authored relationship context before runtime experience develops.</li>
-            <li>Call <code className="bg-white/20 px-2 py-1 rounded">StartDirectedConversationWith(Target)</code> on the initiating character, or use <code className="bg-white/20 px-2 py-1 rounded">StartDirectedConversation(Target)</code> when working directly with an <code className="bg-white/20 px-2 py-1 rounded">ABaseNPC</code> or its controller.</li>
-            <li>When gameplay needs to forcibly end an active conversation, route that through the involved <code className="bg-white/20 px-2 py-1 rounded">ABaseNPC</code>, <code className="bg-white/20 px-2 py-1 rounded">ABaseNPCController</code>, or a project-level conversation coordinator.</li>
-            <li>Use <code className="bg-white/20 px-2 py-1 rounded">bIsInConversation</code>, <code className="bg-white/20 px-2 py-1 rounded">OnConversationEntered</code>, and <code className="bg-white/20 px-2 py-1 rounded">OnConversationEnded</code> for UI, animation, camera, quest, or interaction-state reactions.</li>
-          </ul>
-          <p className="mt-3">
-            Ordinary NPC behavior pauses and resumes around active conversations automatically. Authors usually only need to start conversations from gameplay code and react to the conversation lifecycle; custom inbound message handling through <code className="bg-white/20 px-2 py-1 rounded">ReceiveConversationMessage()</code> is mainly for custom player or scripted character subclasses.
+            Character descriptions and authored relationships guide how NPCs approach and respond to other characters. NPCs choose whether to speak, listen, decline, defer, or leave. An exchange can include a changing group, and nearby characters can hear speech without joining it.
           </p>
           <p className="mt-3">
-            The plugin manages conversation lifecycle cleanup for NPCs, but each project decides its own forced-end conditions, such as player cancel, distance, combat, cutscenes, or quest state.
+            For a player or scripted character, use <code className="bg-white/20 px-2 py-1 rounded">SubmitSpeech</code> to speak and <code className="bg-white/20 px-2 py-1 rounded">DeclareParticipation</code> to express that character's choice to join, decline, or leave. Your game controls input, dialogue UI, animation, and audio. Follow the <a href="#open-conversation" className="text-blue-400 hover:text-blue-300 transition-colors">Open Conversation</a> workflow for callbacks, hearing, and participation state.
           </p>
         </div>
 
@@ -127,7 +111,17 @@ export default function CoreNPCSetupDocs() {
                 <li><code className="bg-white/20 px-2 py-1 rounded">InitialPacketAssignmentOverrides</code> adds one-off spatial packet assignments for this NPC.</li>
               </ul>
               <p className="mt-3">
-                Detailed place, packet, and anchor authoring should live in the spatial authoring section rather than in core setup.
+                Follow <a href="#spatial-authoring" className="text-blue-400 hover:text-blue-300 transition-colors">Spatial Authoring</a> to configure places, areas, and reusable knowledge packets.
+              </p>
+            </div>
+
+            <div>
+              <h4 className="text-lg font-medium text-white mb-3">Starting Item Knowledge</h4>
+              <p>
+                Assign reusable <strong>Collections</strong> and individual <strong>Additional Facts</strong> through the NPC's <strong>Starting Item Knowledge</strong> controls. A profession or background description does not automatically assign facts from your item data. Use the preview to check this NPC's authored starting assignment.
+              </p>
+              <p className="mt-3">
+                Follow <a href="#item-knowledge" className="text-blue-400 hover:text-blue-300 transition-colors">Item Knowledge and Object Understanding</a> to prepare and activate the level's library before making assignments.
               </p>
             </div>
 
@@ -172,11 +166,12 @@ export default function CoreNPCSetupDocs() {
         <div>
           <h3 className="text-xl font-semibold text-white mt-8 mb-4">Editor Validation</h3>
           <p>
-            After assigning spatial knowledge and action access, use the built-in validation actions on the NPC to catch setup issues before runtime.
+            After assigning starting knowledge and action access, use the built-in validation actions and previews to catch setup issues before runtime.
           </p>
           <ul className="list-disc list-inside pl-4 space-y-2 mt-3">
             <li><code className="bg-white/20 px-2 py-1 rounded">ValidateInitialPacketAssignments</code> checks compiled starting spatial knowledge for missing packets or ineffective packet targets.</li>
             <li><code className="bg-white/20 px-2 py-1 rounded">ValidateEnabledActions</code> checks the NPC's compiled action IDs against the assigned controller class.</li>
+            <li>Inspect the <strong>Starting Item Knowledge</strong> preview for missing or invalid assignments. For props, inspect the Perceivable Object component's status and validation errors; see <a href="#perception" className="text-blue-400 hover:text-blue-300 transition-colors">Perception</a>.</li>
           </ul>
         </div>
 

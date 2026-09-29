@@ -27,7 +27,10 @@ export default function Introduction() {
                 The RealisticNPCs Unreal Engine plugin provides a framework for a humanlike NPC cognition and behavior layer that allows developers to easily create intelligent NPCs in their Unreal Engine projects. The plugin handles all the complexities of integrating with language models, managing NPC states, and coordinating behavior generation, letting developers focus on creating engaging gameplay experiences.
               </p>
               <p className="text-gray-300 text-xl">
-                This documentation focuses on the technical details of how to use the plugin. Note that the plugin is currently in an alpha phase so there may be major changes without advanced warning.
+                Author characters, meaningful places, perceivable objects, item knowledge, and gameplay actions. NPCs use their own observations, memories, and relationships to guide behavior and conversation; your game supplies the interactions and presentation. The plugin is in alpha, so its authoring APIs and behavior can change.
+              </p>
+              <p className="text-gray-300 text-xl">
+                Start with the <Link to="/docs/unrealengine/quickstart" className="text-blue-400 hover:text-blue-300 transition-colors">Quick Start Guide</Link> for a first working NPC. The <Link to="/docs/unrealengine/authoring-guide" className="text-blue-400 hover:text-blue-300 transition-colors">Authoring Guide</Link> covers daily setup and integration, including <Link to="/docs/unrealengine/authoring-guide#perception" className="text-blue-400 hover:text-blue-300 transition-colors">object perception</Link>, <Link to="/docs/unrealengine/authoring-guide#item-knowledge" className="text-blue-400 hover:text-blue-300 transition-colors">item knowledge</Link>, and <Link to="/docs/unrealengine/authoring-guide#open-conversation" className="text-blue-400 hover:text-blue-300 transition-colors">open conversation</Link>.
               </p>
               <div className="flex flex-col gap-3 pt-4 sm:flex-row">
                 <Link
