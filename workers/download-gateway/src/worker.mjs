@@ -30,9 +30,26 @@ const REALISTICNPCS_LOCAL_UNREAL_0_4_0 = Object.freeze({
     'https://clankrintelligence.com/legal/realisticnpcs-local/0.4.0/LICENSE.txt',
 });
 
+const REALISTICNPCS_LOCAL_UNREAL_0_5_0 = Object.freeze({
+  artifactId: 'realisticnpcs-local-unreal-v0.5.0-windows-x86_64',
+  key:
+    'releases/0.5.0/unreal/windows-x86_64/RealisticNPCs-Local-Unreal-v0.5.0-Windows-x86_64.zip',
+  fileName: 'RealisticNPCs-Local-Unreal-v0.5.0-Windows-x86_64.zip',
+  contentType: 'application/zip',
+  size: 13374069,
+  artifactSha256:
+    '39c31f215ac38ce8656665a72eea6342c691e6677d5e5b5b358f0a39cfd43e17',
+  licenseSha256:
+    '8aba5d8ff9d85462229829fbe8b3cf4dff9ed0f0326688b236c092c1b8322fce',
+  licenseUrl:
+    'https://clankrintelligence.com/legal/realisticnpcs-local/0.5.0/LICENSE.txt',
+});
+
 const RELEASES = Object.freeze({
   [REALISTICNPCS_LOCAL_UNREAL_0_4_0.artifactId]:
     REALISTICNPCS_LOCAL_UNREAL_0_4_0,
+  [REALISTICNPCS_LOCAL_UNREAL_0_5_0.artifactId]:
+    REALISTICNPCS_LOCAL_UNREAL_0_5_0,
 });
 
 function errorResponse(status, message) {
