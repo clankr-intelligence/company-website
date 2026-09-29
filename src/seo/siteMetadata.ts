@@ -30,9 +30,9 @@ const STATIC_PAGES: readonly SeoPageDefinition[] = [
   },
   {
     path: '/download',
-    title: 'Download RealisticNPCs Local 0.4.0 for Unreal Engine',
+    title: `Download RealisticNPCs Local ${localRelease.version} for Unreal Engine`,
     description:
-      'Download RealisticNPCs Local 0.4.0 for Unreal Engine and run its managed AI NPC backend on 64-bit Windows 10 or Windows 11.',
+      `Download RealisticNPCs Local ${localRelease.version} for Unreal Engine and run its managed AI NPC backend on 64-bit Windows 10 or Windows 11.`,
     indexable: true,
     openGraphType: 'website',
   },
