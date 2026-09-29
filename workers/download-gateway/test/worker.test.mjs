@@ -18,28 +18,49 @@ const LICENSE_SHA =
   '2b514ea59e74f917fda45607f91b755399f2b7f286b9a6b37e259782391b9dd1';
 const LICENSE_URL =
   'https://clankrintelligence.com/legal/realisticnpcs-local/0.4.0/LICENSE.txt';
+const RELEASE_0_4 = {
+  artifactId: RELEASE_ID,
+  fileName: RELEASE_FILE_NAME,
+  key: RELEASE_KEY,
+  size: RELEASE_SIZE,
+  artifactSha256: RELEASE_SHA,
+  licenseSha256: LICENSE_SHA,
+  licenseUrl: LICENSE_URL,
+};
+const RELEASE_0_5 = {
+  artifactId: 'realisticnpcs-local-unreal-v0.5.0-windows-x86_64',
+  fileName: 'RealisticNPCs-Local-Unreal-v0.5.0-Windows-x86_64.zip',
+  key:
+    'releases/0.5.0/unreal/windows-x86_64/RealisticNPCs-Local-Unreal-v0.5.0-Windows-x86_64.zip',
+  size: 13374069,
+  artifactSha256:
+    '39c31f215ac38ce8656665a72eea6342c691e6677d5e5b5b358f0a39cfd43e17',
+  licenseSha256:
+    '8aba5d8ff9d85462229829fbe8b3cf4dff9ed0f0326688b236c092c1b8322fce',
+  licenseUrl:
+    'https://clankrintelligence.com/legal/realisticnpcs-local/0.5.0/LICENSE.txt',
+};
 const RELEASE_BODY = 'zip';
 const RELEASE_ETAG = '"release-etag"';
 const MAX_FORM_BYTES = 4096;
 
-function releaseObject(overrides = {}) {
+function releaseObject(release = RELEASE_0_4) {
   return {
     body: RELEASE_BODY,
-    size: RELEASE_SIZE,
+    size: release.size,
     httpEtag: RELEASE_ETAG,
     httpMetadata: {
       contentType: 'application/zip',
-      contentDisposition: `attachment; filename="${RELEASE_FILE_NAME}"`,
+      contentDisposition: `attachment; filename="${release.fileName}"`,
       cacheControl: 'private, no-store',
     },
     customMetadata: {
       'delivery-contract': 'download-page-clickwrap-v1',
-      'artifact-id': RELEASE_ID,
-      'artifact-sha256': RELEASE_SHA,
-      'license-sha256': LICENSE_SHA,
-      'license-url': LICENSE_URL,
+      'artifact-id': release.artifactId,
+      'artifact-sha256': release.artifactSha256,
+      'license-sha256': release.licenseSha256,
+      'license-url': release.licenseUrl,
     },
-    ...overrides,
   };
 }
 
@@ -290,26 +311,99 @@ test('rejects request stream failures as malformed acceptance', async () => {
   assert.equal((await handleRequest(request, envWith(null))).status, 400);
 });
 
-test('streams the exact registered release without a persistent grant', async () => {
-  const response = await handleRequest(
-    post(),
-    envWith(releaseObject(), RELEASE_KEY),
+for (const release of [RELEASE_0_4, RELEASE_0_5]) {
+  test(`streams ${release.artifactId} without a persistent grant`, async () => {
+    const response = await handleRequest(
+      post({
+        artifact_id: release.artifactId,
+        license_sha256: release.licenseSha256,
+      }),
+      envWith(releaseObject(release), release.key),
+    );
+    assert.equal(response.status, 200);
+    assert.equal(await response.text(), RELEASE_BODY);
+    assert.equal(response.headers.get('Content-Length'), String(release.size));
+    assert.equal(
+      response.headers.get('Content-Disposition'),
+      `attachment; filename="${release.fileName}"`,
+    );
+    assert.equal(response.headers.get('Content-Type'), 'application/zip');
+    assert.equal(response.headers.get('Cache-Control'), 'private, no-store');
+    assert.equal(response.headers.get('X-Content-Type-Options'), 'nosniff');
+    assert.equal(response.headers.get('ETag'), RELEASE_ETAG);
+    assert.equal(response.headers.get('X-Artifact-SHA256'), null);
+    assert.equal(response.headers.get('Set-Cookie'), null);
+    assert.equal(response.headers.get('Location'), null);
+    assert.equal(response.headers.get('Access-Control-Allow-Origin'), null);
+  });
+}
+
+test('rejects cross-version licenses and unknown artifacts before storage access', async () => {
+  let storageReads = 0;
+  const env = {
+    RELEASE_BUCKET: {
+      async get() {
+        storageReads += 1;
+        return null;
+      },
+    },
+  };
+  for (const [artifact, license] of [
+    [RELEASE_0_4, RELEASE_0_5],
+    [RELEASE_0_5, RELEASE_0_4],
+  ]) {
+    const response = await handleRequest(
+      post({
+        artifact_id: artifact.artifactId,
+        license_sha256: license.licenseSha256,
+      }),
+      env,
+    );
+    assert.equal(response.status, 403);
+  }
+  const unknown = await handleRequest(
+    post({ artifact_id: 'realisticnpcs-local-unreal-v0.6.0-windows-x86_64' }),
+    env,
   );
-  assert.equal(response.status, 200);
-  assert.equal(await response.text(), RELEASE_BODY);
-  assert.equal(response.headers.get('Content-Length'), String(RELEASE_SIZE));
+  assert.equal(unknown.status, 404);
+  assert.equal(storageReads, 0);
+});
+
+test('rejects unavailable or incorrectly described 0.5.0 release objects', async () => {
+  const fields = {
+    artifact_id: RELEASE_0_5.artifactId,
+    license_sha256: RELEASE_0_5.licenseSha256,
+  };
   assert.equal(
-    response.headers.get('Content-Disposition'),
-    `attachment; filename="${RELEASE_FILE_NAME}"`,
+    (await handleRequest(post(fields), envWith(null, RELEASE_0_5.key))).status,
+    503,
   );
-  assert.equal(response.headers.get('Content-Type'), 'application/zip');
-  assert.equal(response.headers.get('Cache-Control'), 'private, no-store');
-  assert.equal(response.headers.get('X-Content-Type-Options'), 'nosniff');
-  assert.equal(response.headers.get('ETag'), RELEASE_ETAG);
-  assert.equal(response.headers.get('X-Artifact-SHA256'), null);
-  assert.equal(response.headers.get('Set-Cookie'), null);
-  assert.equal(response.headers.get('Location'), null);
-  assert.equal(response.headers.get('Access-Control-Allow-Origin'), null);
+  assert.equal((await handleRequest(post(fields), failingEnv())).status, 503);
+
+  const invalidObjects = [
+    ['size', (object) => { object.size -= 1; }],
+    ['artifact identity', (object) => { object.customMetadata['artifact-id'] = RELEASE_ID; }],
+    ['artifact hash', (object) => { object.customMetadata['artifact-sha256'] = RELEASE_SHA; }],
+    ['license hash', (object) => { object.customMetadata['license-sha256'] = LICENSE_SHA; }],
+    ['license URL', (object) => { object.customMetadata['license-url'] = LICENSE_URL; }],
+    ['delivery contract', (object) => { object.customMetadata['delivery-contract'] = 'other'; }],
+    ['missing metadata', (object) => { delete object.customMetadata['artifact-sha256']; }],
+    ['extra metadata', (object) => { object.customMetadata.unexpected = 'value'; }],
+    ['content type', (object) => { object.httpMetadata.contentType = 'text/plain'; }],
+    ['filename', (object) => {
+      object.httpMetadata.contentDisposition = `attachment; filename="${RELEASE_FILE_NAME}"`;
+    }],
+    ['cache policy', (object) => { object.httpMetadata.cacheControl = 'public'; }],
+  ];
+  for (const [label, invalidate] of invalidObjects) {
+    const object = releaseObject(RELEASE_0_5);
+    invalidate(object);
+    const response = await handleRequest(
+      post(fields),
+      envWith(object, RELEASE_0_5.key),
+    );
+    assert.equal(response.status, 503, label);
+  }
 });
 
 test('rejects unavailable or incorrectly described release objects', async () => {

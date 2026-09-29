@@ -1,0 +1,277 @@
+REALISTICNPCS LOCAL LICENSE AGREEMENT
+RealisticNPCs Local 0.5.0
+
+Copyright (c) 2026 Clankr Intelligence Inc. All rights reserved.
+
+This Agreement must be affirmatively accepted by clicking "I Agree" when
+downloading the Software from Licensor before you may use the Software. If you
+have not affirmatively accepted this Agreement through that mechanism, your
+downloading, installing, using, copying, modifying, or distributing any part of
+the Software nonetheless constitutes acceptance of this Agreement. If you do
+not accept this Agreement, do not use the Software.
+
+1. Definitions
+--------------
+
+"Licensor" means Clankr Intelligence Inc.
+
+"Software" means RealisticNPCs Local 0.5.0 as supplied with this Agreement,
+including the Daemon, Adapter, and accompanying product documentation, but
+excluding Third-Party Materials. Where Third-Party Materials are compiled or
+otherwise incorporated into the Daemon, or included within the Adapter, they
+remain governed by their separate license terms notwithstanding their inclusion
+in the compiled Software, and their presence does not limit the rights granted,
+or the restrictions and obligations that apply, with respect to the
+Licensor-authored portions of the Software under this Agreement.
+
+"Daemon" means the proprietary compiled RealisticNPCs daemon executable.
+
+"Adapter" means the source-visible RealisticNPCs Unreal Engine plugin,
+including its source code and accompanying plugin files, except that
+Third-Party Materials within the plugin remain excluded from the Software and
+governed by their separate terms.
+
+"Integrated Product" means a game or application that incorporates or uses the
+Software and provides substantial functionality and value independent of the
+Software itself. Factors relevant to whether a product is an Integrated Product
+include, without limitation, whether it has gameplay, narrative, or application
+functionality that does not depend on the Software; whether a user could
+meaningfully use the product without RealisticNPCs functionality; and whether
+the Software's general-purpose capabilities are exposed to end users as a
+standalone feature rather than as an integrated part of the product's own
+functionality.
+
+"Standalone Offering" means a product, service, package, toolkit, framework,
+API, or platform whose primary purpose or value is the Software or substantial
+general-purpose RealisticNPCs functionality rather than an independently
+functional game or application.
+
+"Third-Party Materials" means software, assets, data, or other materials
+identified in THIRD_PARTY_NOTICES.txt or otherwise accompanied by separate
+license terms.
+
+2. License grant
+----------------
+
+Subject to this Agreement, Licensor grants you a perpetual (subject to Section
+11), non-exclusive, worldwide, royalty-free license to:
+
+(a) use and copy the Software for development, testing, internal use, and
+operation of Integrated Products;
+
+(b) inspect, modify, and compile the Adapter;
+
+(c) execute and copy the unmodified Daemon binary;
+
+(d) incorporate the Software into Integrated Products and distribute, sell,
+license, or otherwise commercialize those Integrated Products; and
+
+(e) operate the Software on infrastructure controlled by you, or operated by a
+contractor or service provider solely on your behalf, to support your
+Integrated Products, including commercial online games and applications.
+
+You may permit employees and contractors to exercise these rights solely on
+your behalf. You remain responsible for their compliance with this Agreement.
+
+3. Adapter modifications
+------------------------
+
+You may keep Adapter modifications private. This Agreement does not require you
+to publish or disclose Adapter source code or modifications, including when you
+distribute compiled Adapter code as part of an Integrated Product.
+
+If you distribute modified Adapter source or a modified standalone Adapter, you
+must clearly identify it as modified and distribute the Licensor-authored
+portions under this Agreement. You may not replace this Agreement with an
+open-source or other license for any Licensor-authored portion of the Adapter or
+a derivative of that portion. Third-Party Materials remain under their separate
+terms as stated in Section 10. This does not restrict independently developed
+code that is separate from and not derived from the Adapter.
+
+4. Daemon restrictions
+----------------------
+
+You may redistribute the Daemon only in the unmodified binary form supplied by
+Licensor. You may not modify, translate, reverse engineer, decompile,
+disassemble, derive source code from, or create derivative works of the Daemon,
+except to the limited extent that applicable law expressly permits such
+activity despite this restriction.
+
+Configuration and ordinary operation through documented interfaces do not
+modify the Daemon.
+
+5. Redistribution and standalone resale
+----------------------------------------
+
+You may distribute the Software as part of an Integrated Product, including a
+commercial Integrated Product.
+
+You may also redistribute, only without charge, a complete Software package
+that includes a modified Adapter while keeping the Daemon unmodified, an
+unmodified Daemon copy, or a modified or unmodified Adapter copy. Every such
+standalone redistribution must include this Agreement, applicable copyright and
+attribution notices, and THIRD_PARTY_NOTICES.txt. Each recipient receives rights
+to the Software directly from Licensor under this Agreement.
+
+You may not sell, rent, license for a fee, or otherwise monetize the Software as
+a Standalone Offering. You may not include it in a paid developer toolkit,
+framework, or other offering whose primary value is the Software or its
+general-purpose functionality.
+
+You may charge for bona fide development, integration, or consulting services,
+provided that the charge is not for standalone access to the Software or its
+general-purpose functionality.
+
+5A. Third-party notices in distributed copies
+----------------------------------------------
+
+Whether you distribute the Software on a standalone basis under Section 5 or
+as part of an Integrated Product under Section 2(d), you must include, or make
+reasonably available to end users of the Integrated Product, the notices
+required by THIRD_PARTY_NOTICES.txt (for example, through an in-application
+credits or legal-notices screen, an accompanying file, or a linked notices
+page). This obligation is in addition to, and does not limit, your obligations
+under Section 5 for standalone redistribution of the Software.
+
+6. Hosted-service restriction
+-----------------------------
+
+You may not, whether for payment or free of charge, provide the Software or a
+substantial portion of its general-purpose NPC functionality to third parties as
+a standalone hosted or managed service, API, platform, or service that acts as a
+practical substitute for RealisticNPCs.
+
+This restriction does not prohibit you, or a contractor or service provider
+acting solely on your behalf, from operating the Software server-side to power
+an Integrated Product owned or controlled by you. Players may interact with NPC
+behavior through that Integrated Product, provided they are not given access to
+the Software as a general-purpose development service, API, or platform.
+
+7. Your projects and content
+----------------------------
+
+You retain all rights in your game or application code, content, characters,
+world data, prompts, configurations, and other materials that are not part of
+the Software or derived from the Adapter. Using the Software does not require
+you to disclose or license those materials under this Agreement.
+
+8. Ownership, notices, and trademarks
+-------------------------------------
+
+Licensor retains all rights in the Software not expressly granted by this
+Agreement. You may not remove or obscure licensing, copyright, attribution, or
+proprietary notices contained in the Software.
+
+This Agreement does not grant any right to use Licensor's names, logos, or
+trademarks except as reasonably necessary to identify the Software or describe
+compatibility. You may not state or imply that a modified version is official,
+certified, sponsored, or endorsed by Licensor.
+
+9. Patents
+----------
+
+Licensor grants you a license under patent claims that Licensor owns or can
+license, solely as necessary to exercise the rights expressly granted by this
+Agreement. This patent license does not cover claims caused by your
+modifications or additions.
+
+If you or an organization on whose behalf you act asserts in writing that the
+Software infringes a patent, the patent license granted to you under this
+Agreement terminates immediately.
+
+10. Third-Party Materials
+-------------------------
+
+Third-Party Materials are governed by their respective license terms, not this
+Agreement. Nothing in this Agreement limits rights or imposes restrictions
+contrary to those separate terms. Required notices are provided in
+THIRD_PARTY_NOTICES.txt.
+
+11. Termination
+---------------
+
+Your rights under this Agreement terminate automatically if you violate it. If
+Licensor notifies you of a first violation and you completely cure that
+violation within 30 days after receiving notice, your rights will be reinstated
+retroactively. A later violation after reinstatement causes permanent
+termination.
+
+Upon termination, you must stop using and distributing the Software, except to
+the extent applicable law requires otherwise. Termination does not require you
+to remove or disable the Software from copies of an Integrated Product already
+distributed to end users prior to termination, provided that you cease further
+distribution and cease all other use of the Software.
+
+12. No support or updates
+-------------------------
+
+Licensor is not required to provide maintenance, support, updates, upgrades, or
+continued availability of the Software.
+
+13. Disclaimer of warranty
+--------------------------
+
+TO THE FULLEST EXTENT PERMITTED BY LAW, THE SOFTWARE IS PROVIDED "AS IS" AND
+"AS AVAILABLE," WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, WHETHER EXPRESS,
+IMPLIED, OR STATUTORY, INCLUDING WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE, TITLE, NON-INFRINGEMENT, RELIABILITY, OR ERROR-FREE
+OPERATION.
+
+14. Limitation of liability
+---------------------------
+
+TO THE FULLEST EXTENT PERMITTED BY LAW, LICENSOR WILL NOT BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, CONSEQUENTIAL, OR PUNITIVE
+DAMAGES, OR FOR LOSS OF PROFITS, REVENUE, DATA, GOODWILL, OR BUSINESS
+OPPORTUNITY, ARISING FROM THIS AGREEMENT OR THE SOFTWARE, UNDER ANY THEORY OF
+LIABILITY.
+
+15. General
+-----------
+
+This Agreement grants no rights except those expressly stated. If any provision
+is unenforceable, it will be limited to the minimum extent necessary, and the
+remaining provisions will remain in effect.
+
+15A. Governing law and venue
+----------------------------
+
+This Agreement is governed by the laws of the State of Delaware, without regard
+to its conflict-of-laws principles. The parties consent to the exclusive
+jurisdiction and venue of the state and federal courts located in Delaware for
+any dispute arising out of or relating to this Agreement or the Software.
+
+15B. Entire agreement
+---------------------
+
+This Agreement, together with THIRD_PARTY_NOTICES.txt, is the entire agreement
+between you and Licensor regarding the Software and supersedes all prior or
+contemporaneous agreements, understandings, or communications, written or oral,
+regarding its subject matter.
+
+15C. Assignment
+---------------
+
+You may not assign or transfer this Agreement or your rights under it without
+Licensor's prior written consent, except in connection with a merger,
+acquisition, or sale of substantially all of your assets; any other attempted
+assignment is void. Licensor may assign this Agreement without restriction.
+This Agreement binds and benefits the parties' permitted successors and
+assigns.
+
+15D. Amendment; waiver
+----------------------
+
+Licensor may modify this Agreement for future releases of the Software; the
+version of this Agreement distributed with a given release governs your use of
+that release and does not retroactively apply to your use of a previously
+released version. No waiver of any provision of this Agreement is effective
+unless made in writing and signed by the waiving party, and no single waiver
+constitutes a continuing waiver.
+
+15E. Notices
+------------
+
+Notices to Licensor must be sent to legal@clankrintelligence.com. Licensor may
+provide notices to you by posting them with the Software or at Licensor's
+website for the Software.
