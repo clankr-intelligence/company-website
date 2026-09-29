@@ -37,110 +37,157 @@ export default function APIReferenceDocs() {
         <ApiSection title="Core Characters">
           <ApiEntry name="ABaseCharacter">
             <p>
-              Required base class for character actors the plugin should identify, perceive as characters, remember, reference in relationships, or include in conversations. Use it for player characters, companions, scripted characters, and other participating character actors.
+              Base class for player, scripted, and NPC characters that the plugin can perceive, remember, address, or reference in relationships. Author <code className={codeClassName}>CharacterName</code> as a display name; stable identity comes from the character GUID.
             </p>
             <ul className="list-disc list-inside pl-4 space-y-1">
-              <li>Key fields and functions: <code className={codeClassName}>CharacterName</code>, <code className={codeClassName}>GetOrCreateCharacterGuid()</code>, <code className={codeClassName}>SetCharacterGuid()</code>, <code className={codeClassName}>GetPerceivableFactsComponent()</code>, <code className={codeClassName}>StartDirectedConversationWith()</code>.</li>
-              <li>Use <code className={codeClassName}>GetOrCreateCharacterGuid()</code> for stable character identity. <code className={codeClassName}>SetCharacterGuid()</code> is intended for save-restore workflows.</li>
-              <li>Conversation reactions: <code className={codeClassName}>bIsInConversation</code>, <code className={codeClassName}>OnConversationEntered</code>, <code className={codeClassName}>OnConversationEnded</code>.</li>
+              <li><code className={codeClassName}>GetOrCreateCharacterGuid()</code> returns stable identity. When your save system respawns the same character, use the C++ method <code className={codeClassName}>SetCharacterGuid()</code> to restore its saved GUID before <code className={codeClassName}>BeginPlay</code>. See <a className="text-blue-400 hover:underline" href="#memory-and-persistence">Memory, Continuity, and Persistence</a> for the workflow using deferred spawning.</li>
+              <li><code className={codeClassName}>GetPerceivableFactsComponent()</code> exposes current observable character state.</li>
+              <li><code className={codeClassName}>SubmitSpeech()</code>, <code className={codeClassName}>DeclareParticipation()</code>, and <code className={codeClassName}>GetConversationState()</code> provide speech and participation integration.</li>
             </ul>
-          </ApiEntry>
-
-          <ApiEntry name="FConversationView">
-            <p>
-              Blueprint-facing conversation snapshot sent through conversation lifecycle events. Use it to inspect the episode id, mode, primary target, participants, and current speaker.
-            </p>
-            <p>
-              The documented authoring path is currently directed conversation. Do not assume broader or open-audience modes are the primary supported authoring workflow unless they are documented separately.
-            </p>
           </ApiEntry>
 
           <ApiEntry name="ABaseNPC">
             <p>
-              Autonomous NPC actor class. Authors configure identity, behavior flags, relationships, starting spatial knowledge, spatial perception settings, and action access here.
+              Autonomous NPC class. Configure its profile, relationships, starting spatial and item knowledge, perception settings, and action access in the editor.
             </p>
             <ul className="list-disc list-inside pl-4 space-y-1">
-              <li>Identity fields: <code className={codeClassName}>Background</code>, <code className={codeClassName}>ShortTermGoal</code>, <code className={codeClassName}>SelfAssessment</code>, <code className={codeClassName}>Relationships</code>, <code className={codeClassName}>IdentityDevelopmentPolicy</code>.</li>
-              <li>Spatial/action authoring fields: <code className={codeClassName}>InitialKnowledgePresets</code>, <code className={codeClassName}>InitialPlaceOverrides</code>, <code className={codeClassName}>InitialPacketAssignmentOverrides</code>, <code className={codeClassName}>ActionSetPresets</code>, <code className={codeClassName}>AddedActionIds</code>, <code className={codeClassName}>RemovedActionIds</code>.</li>
-              <li>Validation helpers: <code className={codeClassName}>ValidateInitialPacketAssignments()</code> and <code className={codeClassName}>ValidateEnabledActions()</code>.</li>
-              <li>Conversation helpers: <code className={codeClassName}>StartDirectedConversation()</code> and <code className={codeClassName}>ForceEndConversation()</code>.</li>
+              <li>Profile: <code className={codeClassName}>Background</code>, <code className={codeClassName}>ShortTermGoal</code>, <code className={codeClassName}>SelfAssessment</code>, <code className={codeClassName}>Relationships</code>, and <code className={codeClassName}>IdentityDevelopmentPolicy</code>.</li>
+              <li>Spatial knowledge: <code className={codeClassName}>InitialKnowledgePresets</code>, <code className={codeClassName}>InitialPlaceOverrides</code>, and <code className={codeClassName}>InitialPacketAssignmentOverrides</code>.</li>
+              <li>Starting Item Knowledge: <code className={codeClassName}>AuthoredKnowledgeCollections</code> and <code className={codeClassName}>AdditionalAuthoredKnowledge</code>, displayed as Collections and Additional Facts.</li>
+              <li>Action access: <code className={codeClassName}>ActionSetPresets</code>, <code className={codeClassName}>AddedActionIds</code>, and <code className={codeClassName}>RemovedActionIds</code>.</li>
+              <li><code className={codeClassName}>ValidateInitialPacketAssignments()</code> and <code className={codeClassName}>ValidateEnabledActions()</code> check authored setup.</li>
+              <li><code className={codeClassName}>GetPhysicalAttentionState()</code> exposes current physical readiness for presentation, separately from conversation participation.</li>
             </ul>
           </ApiEntry>
 
           <ApiEntry name="ABaseNPCController">
             <p>
-              AI controller base for automatic adapter registration, action registration and execution, plugin-owned movement, conversation routing, and movement lifecycle events.
+              Controller base for automatic NPC registration, custom action execution, and movement. Override <code className={codeClassName}>RegisterNPCActions()</code> to declare actions. Possessing an enabled <code className={codeClassName}>ABaseNPC</code> starts its registration automatically.
             </p>
-            <ul className="list-disc list-inside pl-4 space-y-1">
-              <li>Override <code className={codeClassName}>RegisterNPCActions()</code> to register custom gameplay actions.</li>
-              <li>Possessing an enabled <code className={codeClassName}>ABaseNPC</code> registers it automatically; no manual startup call is required.</li>
-              <li>Call <code className={codeClassName}>FinishNPCAction()</code> when gameplay completes an authored until-complete action.</li>
-              <li>Use <code className={codeClassName}>MoveToLocation()</code> and <code className={codeClassName}>MoveToCharacter()</code> from custom gameplay code when movement should use plugin-resolved targets. <code className={codeClassName}>MoveToCharacter()</code> expects a valid current character reference; it is not a policy-level shortcut for finding arbitrary characters.</li>
-              <li>React to movement through <code className={codeClassName}>OnNPCMoveLifecycleEvent</code>.</li>
-            </ul>
+            <p>
+              Use <code className={codeClassName}>MoveToLocation()</code>, <code className={codeClassName}>MoveToCharacter()</code>, or <code className={codeClassName}>MoveToLocationWithOutcome()</code> for custom movement integration. <code className={codeClassName}>PostMoveLogic</code> continuations run only on success. Handle immediate rejection and final failure or cancellation when completing custom actions; <code className={codeClassName}>OnNPCMoveLifecycleEvent</code> reports movement results as well as presentation events. See <a className="text-blue-400 hover:underline" href="/docs/unrealengine/authoring-guide#actions-and-movement">Actions and Movement</a> for outcome handling. <code className={codeClassName}>OnNPCActionFinished</code> supports common finish cleanup.
+            </p>
           </ApiEntry>
         </ApiSection>
 
         <ApiSection title="Actions and Movement">
           <ApiEntry name="FNPCActionRegistrar">
             <p>
-              Registration helper passed to <code className={codeClassName}>ABaseNPCController::RegisterNPCActions()</code>. Use <code className={codeClassName}>RegisterAction()</code>, <code className={codeClassName}>RegisterInstantAction()</code>, or <code className={codeClassName}>RegisterDurationAction()</code> depending on the action lifecycle.
+              Passed to <code className={codeClassName}>RegisterNPCActions()</code>. Register a void C++ callable with <code className={codeClassName}>RegisterInstantAction</code>, <code className={codeClassName}>RegisterDurationAction</code>, or <code className={codeClassName}>RegisterUntilCompleteAction</code>. Handler parameter types define the inputs; <code className={codeClassName}>TOptional&lt;T&gt;</code> makes an input optional. The registration method defines completion behavior.
             </p>
           </ApiEntry>
 
-          <ApiEntry name="FNPCActionSpec">
+          <ApiEntry name="FNPCActionDefinition">
             <p>
-              Author-facing action definition. <code className={codeClassName}>ActionId</code> is the stable id, <code className={codeClassName}>ActionDescription</code> is prompt-facing, <code className={codeClassName}>Parameters</code> defines typed inputs, and <code className={codeClassName}>Lifecycle</code> controls completion semantics.
+              Action metadata: <code className={codeClassName}>ActionId</code>, <code className={codeClassName}>Description</code>, and ordered <code className={codeClassName}>Parameters</code>. Keep the ID stable and describe the concrete gameplay effect.
             </p>
           </ApiEntry>
 
-          <ApiEntry name="ENPCActionLifecycle">
+          <ApiEntry name="FNPCActionParameterDefinition">
             <p>
-              Action completion mode. <code className={codeClassName}>UntilComplete</code> actions complete when gameplay signals completion, while <code className={codeClassName}>Duration</code> actions represent lived activity time and are completed by the plugin timing system.
+              An authored parameter's <code className={codeClassName}>Name</code>, <code className={codeClassName}>Description</code>, numeric bounds, or allowed choices. Helpers include <code className={codeClassName}>Plain</code>, <code className={codeClassName}>Range</code>, <code className={codeClassName}>Minimum</code>, <code className={codeClassName}>Maximum</code>, and <code className={codeClassName}>Choices</code>. Types and requiredness come from the handler signature.
             </p>
           </ApiEntry>
 
-          <ApiEntry name="FNPCActionParamSpec">
+          <ApiEntry name="FNPCActionAttempt">
             <p>
-              Parameter definition for an action. Use clear <code className={codeClassName}>Name</code> and <code className={codeClassName}>Description</code> values, choose the correct <code className={codeClassName}>Type</code>, set requiredness, and provide numeric bounds or allowed choices when applicable.
+              Copyable completion handle passed by value as the first argument of an until-complete handler, and optionally a duration handler. Use <code className={codeClassName}>Succeed()</code>, <code className={codeClassName}>Fail(reason)</code>, or <code className={codeClassName}>Cancel(reason)</code> on the game thread. Capture this attempt for asynchronous work; <code className={codeClassName}>IsCurrent()</code> checks whether it still owns the action. Stale or repeated settlement cannot finish a newer action.
             </p>
           </ApiEntry>
 
-          <ApiEntry name="FNPCActionInvocation">
+          <ApiEntry name="Action Cancellation and Finish Hooks">
             <p>
-              Runtime action call data. Typed registration usually extracts parameters for you; use this directly only when an action needs manual parameter lookup or access to the current controller.
-            </p>
-          </ApiEntry>
-
-          <ApiEntry name="ENPCActionParamType">
-            <p>
-              Supported action parameter kinds: <code className={codeClassName}>String</code>, <code className={codeClassName}>Bool</code>, <code className={codeClassName}>Int32</code>, <code className={codeClassName}>Float</code>, <code className={codeClassName}>Choice</code>, <code className={codeClassName}>CharacterRef</code>, and <code className={codeClassName}>LocationRef</code>.
+              Duration and until-complete registrations accept optional cancellation cleanup with the same authored parameter types, without an attempt argument. Use it for interrupted or cancelled gameplay work. <code className={codeClassName}>OnNPCActionFinished</code> remains available on the controller for common finish cleanup.
             </p>
           </ApiEntry>
 
           <ApiEntry name="UNPCActionSetAsset">
             <p>
-              Reusable data asset containing action ids enabled for an NPC role. Assign these through <code className={codeClassName}>ABaseNPC::ActionSetPresets</code>, then use per-NPC additions or removals for exceptions.
+              Reusable list of custom action IDs enabled for an NPC. Assign through <code className={codeClassName}>ActionSetPresets</code>, then use per-NPC additions or removals. Each enabled custom ID needs a registered implementation on the assigned controller.
             </p>
           </ApiEntry>
 
-          <ApiEntry name="FCharacterRef">
+          <ApiEntry name="FCharacterRef, FRNPCObjectRef, and FEntityRef">
             <p>
-              Identity-backed character reference used by action parameters. The stable id is canonical; the actor pointer is optional and only valid when the character is spawned and loaded.
+              Action parameters for a live character, a live object, or either kind respectively. Current physical grounding is required; memory or conversation participation does not grant a physical target. Recheck <code className={codeClassName}>Get()</code> before acting, especially after asynchronous work. <code className={codeClassName}>FCharacterRef::IsValid()</code> checks identity, not actor liveness.
             </p>
           </ApiEntry>
 
           <ApiEntry name="FLocationRef">
             <p>
-              Identity-backed location reference used by behavior and movement. A valid reference may still be ungrounded; movement requires a grounded objective target.
+              Spatial reference used by behavior and movement. Identity alone does not guarantee a reachable position; movement needs a grounded destination and live Unreal validation.
             </p>
           </ApiEntry>
 
           <ApiEntry name="FNPCMoveLifecycleEvent">
             <p>
-              Blueprint-facing movement lifecycle payload emitted through <code className={codeClassName}>OnNPCMoveLifecycleEvent</code>. Use it for animation, UI, VFX, or gameplay reactions to plugin-controlled movement.
+              Payload for the Blueprint-native <code className={codeClassName}>OnNPCMoveLifecycleEvent</code>. Describes movement startup, target resolution, waypoint progress, and final success, failure, or cancellation for animation, UI, or other gameplay reactions.
             </p>
           </ApiEntry>
+          <p>See <a className="text-blue-400 hover:underline" href="/docs/unrealengine/authoring-guide#actions-and-movement">Actions and Movement</a> for registration examples, supported input types, and cleanup guidance.</p>
+        </ApiSection>
+
+        <ApiSection title="Speech and Conversation">
+          <ApiEntry name="ABaseCharacter::SubmitSpeech">
+            <p>
+              Game-thread Blueprint/C++ entry point for an externally controlled character's text, audience, delivery strength, and optional context ID. Returns local admission, an utterance ID, and an immediate error. Set the optional <code className={codeClassName}>bEnterConversation</code> argument for a directed message that also declares entry. Admission does not guarantee hearing, participation, or a reply.
+            </p>
+          </ApiEntry>
+
+          <ApiEntry name="FRNPCSpeechAudience and ERNPCSpeechDeliveryStrength">
+            <p>
+              Audience <code className={codeClassName}>Kind</code> is <code className={codeClassName}>Directed</code>, <code className={codeClassName}>Open</code>, or <code className={codeClassName}>SelfDirected</code>. Directed speech supplies unique available <code className={codeClassName}>Addressees</code> in the same world, excluding the speaker. Strength is <code className={codeClassName}>Quiet</code>, <code className={codeClassName}>Ordinary</code>, or <code className={codeClassName}>Projected</code>.
+            </p>
+          </ApiEntry>
+
+          <ApiEntry name="ABaseCharacter::DeclareParticipation and FRNPCParticipationDeclaration">
+            <p>
+              Game-thread Blueprint/C++ entry point for an external character's <code className={codeClassName}>Enter</code>, <code className={codeClassName}>Decline</code>, or <code className={codeClassName}>Withdraw</code> choice. Initial entry supplies <code className={codeClassName}>Counterparts</code>; answering an offer or withdrawing uses its current returned <code className={codeClassName}>Reference</code>. Check immediate errors and later participation/failure events.
+            </p>
+          </ApiEntry>
+
+          <ApiEntry name="GetConversationState, FRNPCConversationState, and FRNPCConversationReference">
+            <p>
+              Read <code className={codeClassName}>bAvailable</code>, <code className={codeClassName}>bParticipating</code>, <code className={codeClassName}>bEntryPending</code>, current references, counterparts, and offers. Unavailable state is not departure; pending entry is not accepted participation. Copy references from current state or offers and do not persist or reconstruct them.
+            </p>
+          </ApiEntry>
+
+          <ApiEntry name="OnSpeechOutcome and FRNPCSpeechOutcome">
+            <p>
+              Speaker event with <code className={codeClassName}>Speech</code> metadata, <code className={codeClassName}>Status</code>, <code className={codeClassName}>DeliveredText</code>, and <code className={codeClassName}>Reason</code>. Success carries the whole message; failure/cancellation carries no delivered text. Use for submission feedback and speaker presentation.
+            </p>
+          </ApiEntry>
+
+          <ApiEntry name="OnSpeechReceived and FRNPCSpeechReception">
+            <p>
+              Listener event containing received <code className={codeClassName}>Text</code>, <code className={codeClassName}>Level</code>, optional <code className={codeClassName}>Speaker</code>, and optional <code className={codeClassName}>Localization</code>. Intelligible reception has the complete message; detection-only reception has no words. A null speaker remains unidentified. Use personal reception for the listener's transcript.
+            </p>
+          </ApiEntry>
+
+          <ApiEntry name="OnContactOffered, OnParticipationChanged, and OnCommunicationFailure">
+            <p>
+              Assignable events carrying <code className={codeClassName}>FRNPCContactOffer</code>, <code className={codeClassName}>FRNPCConversationParticipation</code>, and <code className={codeClassName}>FRNPCCommunicationFailure</code>. Present offers, refresh current participation state, and report operational failures respectively. Bind before submitting input. <code className={codeClassName}>PendingClosed</code> reports closure of pending entry and can accompany its acceptance.
+            </p>
+          </ApiEntry>
+
+          <ApiEntry name="GetPhysicalAttentionState and ERNPCPhysicalAttentionState">
+            <p>
+              Game-thread Blueprint query on <code className={codeClassName}>ABaseNPC</code> for <code className={codeClassName}>OrdinaryActivity</code>, <code className={codeClassName}>YieldPending</code>, <code className={codeClassName}>ProvisionalAttention</code>, <code className={codeClassName}>RetainedAttention</code>, or <code className={codeClassName}>Unavailable</code>. Use for physical presentation readiness, not accepted participation or a facing target.
+            </p>
+          </ApiEntry>
+
+          <ApiEntry name="GetSpeechPhysicalConditions and FRNPCSpeechPhysicalConditions">
+            <p>
+              Blueprint-native character override for physical <code className={codeClassName}>bCanSpeak</code>, <code className={codeClassName}>bCanHear</code>, and <code className={codeClassName}>LocalMasking</code> from 0 to 1. A synchronous read-only game-thread query; it does not choose social willingness.
+            </p>
+          </ApiEntry>
+
+          <ApiEntry name="EvaluateSpeechReception and FRNPCSpeechReceptionEvaluation">
+            <p>
+              Optional Blueprint-native listener override for custom hearing. Return <code className={codeClassName}>NotDetected</code>, <code className={codeClassName}>DetectedOnly</code>, or <code className={codeClassName}>Intelligible</code> plus optional <code className={codeClassName}>FRNPCSpeechLocalization</code>. Replaces the default calculation while preserving the physical inability-to-hear restriction. Run synchronously on the game thread without presentation or latent work.
+            </p>
+          </ApiEntry>
+          <p>See <a className="text-blue-400 hover:underline" href="/docs/unrealengine/authoring-guide#open-conversation">Open Conversation</a> for complete interaction, hearing, and presentation guidance.</p>
         </ApiSection>
 
         <ApiSection title="Spatial Authoring">
@@ -230,15 +277,18 @@ export default function APIReferenceDocs() {
             </p>
           </ApiEntry>
 
-          <ApiEntry name="UPerceivableIdComponent">
+          <ApiEntry name="UPerceivableObjectComponent">
             <p>
-              Stable identity component for non-character actors such as doors, props, and interactables. Character actors that participate in the plugin should derive from <code className={codeClassName}>ABaseCharacter</code> instead.
+              Add the editor's <code className={codeClassName}>Perceivable Object</code> component to an ordinary noncharacter actor. Author its perceptual label, immediately visible description, and visible traits. It supplies stable object identity and Object Vision participation; optional <code className={codeClassName}>PerceptualGeometryComponents</code> restrict which same-actor primitives supply visibility geometry.
+            </p>
+            <p>
+              <code className={codeClassName}>GetObjectGuid()</code> reads identity. Use <code className={codeClassName}>RestoreObjectGuid()</code> when your save system respawns the same logical object, and check its Boolean result. Characters use <code className={codeClassName}>ABaseCharacter</code> instead. See <a className="text-blue-400 hover:underline" href="/docs/unrealengine/authoring-guide#perception">Perception</a> for collision, geometry, and identity setup.
             </p>
           </ApiEntry>
 
           <ApiEntry name="UNPCStimulusSubsystem">
             <p>
-              World subsystem for emitting one-off perception events. Use <code className={codeClassName}>EmitStimulus()</code> for discrete events such as sounds, impacts, shouts, or damage.
+              World subsystem for emitting one-off perception events. Use <code className={codeClassName}>EmitStimulus()</code> for discrete events such as sounds, impacts, or damage. Use the speech API when characters should receive actual words.
             </p>
           </ApiEntry>
 
@@ -255,10 +305,43 @@ export default function APIReferenceDocs() {
           </ApiEntry>
         </ApiSection>
 
+        <ApiSection title="Item Knowledge">
+          <ApiEntry name="UAuthoredItemKnowledgeSourceAsset">
+            <p>
+              Editor <code className={codeClassName}>Item Knowledge Library</code> asset. Map existing DataTables, Data Assets, data-only Blueprint defaults, or Data Registry selections to stable definitions and facts; add prose annotations where needed. Keep <code className={codeClassName}>ContentId</code> stable when renaming or moving the asset.
+            </p>
+          </ApiEntry>
+
+          <ApiEntry name="AItemKnowledgeActor">
+            <p>
+              The level's <code className={codeClassName}>Item Knowledge</code> actor selects its active <code className={codeClassName}>Library</code>. Create or update it with the library's <code className={codeClassName}>Use in Current Level</code> command. Keep exactly one binding in the persistent level, loaded outside runtime data layers. Library changes apply to a new session.
+            </p>
+          </ApiEntry>
+
+          <ApiEntry name="UAuthoredItemKnowledgeCollectionAsset">
+            <p>
+              Reusable starting-fact selections for NPCs. Its <code className={codeClassName}>Source</code>, displayed as Library, associates the collection with content; the level actor activates that content. Assign collections through the NPC's Starting Item Knowledge controls.
+            </p>
+          </ApiEntry>
+
+          <ApiEntry name="FRNPCAuthoredKnowledgeSelection and FRNPCAuthoredFactReference">
+            <p>
+              A collection selection names a <code className={codeClassName}>DefinitionId</code> and optional <code className={codeClassName}>FactIds</code>; an empty fact list selects all facts for that entry. An additional fact reference names one exact definition and fact. NPC collections and Additional Facts combine by union and do not overwrite restored personal knowledge.
+            </p>
+          </ApiEntry>
+
+          <ApiEntry name="UAuthoredItemKnowledgeReader">
+            <p>
+              Optional project-owned C++ reader for specialized source schemas. Override <code className={codeClassName}>ReadItem</code> when the library's reflected property mapping cannot express your data. Existing item classes keep their own inheritance; ordinary libraries need no custom reader.
+            </p>
+          </ApiEntry>
+          <p>See <a className="text-blue-400 hover:underline" href="/docs/unrealengine/authoring-guide#item-knowledge">Item Knowledge and Object Understanding</a> for authoring, preview, assignment, and recognition guidance.</p>
+        </ApiSection>
+
         <ApiSection title="Continuity, Time, and Configuration">
           <ApiEntry name="URNPCsDeveloperSettings">
             <p>
-              Project settings for calendar selection, automatic initial time, persistent-state reset, and world description. Provider services and model targets are configured separately through <code className={codeClassName}>Window → RealisticNPCs Daemon Config</code>.
+              Project settings for calendar selection, automatic initial time, development persistent-state reset, and world description. Provider services and model targets are configured separately through <code className={codeClassName}>Window → RealisticNPCs Daemon Config</code>.
             </p>
             <ul className="list-disc list-inside pl-4 space-y-1">
               <li><code className={codeClassName}>CalendarSource</code>, <code className={codeClassName}>SimpleCalendar</code>, <code className={codeClassName}>GregorianCalendar</code>, and <code className={codeClassName}>CustomCalendarAsset</code>.</li>
@@ -279,7 +362,7 @@ export default function APIReferenceDocs() {
 
           <ApiEntry name="URNPCContinuitySubsystem">
             <p>
-              Game-instance subsystem that owns the active NPC continuity. Packaged games use <code className={codeClassName}>CreateNewContinuity()</code>, <code className={codeClassName}>ResumeContinuity()</code>, or <code className={codeClassName}>StartEphemeralContinuity()</code> to choose a timeline, and coordinate SaveGame checkpoints with <code className={codeClassName}>PrepareContinuitySave()</code> and <code className={codeClassName}>FinishContinuitySave()</code>.
+              Game-instance subsystem for selecting and saving the active NPC continuity. Packaged games use <code className={codeClassName}>CreateNewContinuity()</code>, <code className={codeClassName}>ResumeContinuity()</code>, or <code className={codeClassName}>StartEphemeralContinuity()</code> to choose a timeline, and coordinate SaveGame checkpoints with <code className={codeClassName}>PrepareContinuitySave()</code> and <code className={codeClassName}>FinishContinuitySave()</code>.
             </p>
             <p>
               <code className={codeClassName}>GetActiveContinuityToken()</code> and <code className={codeClassName}>GetContinuityState()</code> expose the current state. PIE resolves its persistent continuity automatically.
@@ -294,7 +377,7 @@ export default function APIReferenceDocs() {
 
           <ApiEntry name="FRNPCContinuityToken">
             <p>
-              SaveGame-compatible reference to a persistent NPC checkpoint. Store it with the project's save data and pass it to <code className={codeClassName}>Resume Continuity</code> when loading that save.
+              SaveGame-compatible reference to a persistent NPC checkpoint. Store it with the project's save data and pass it to <code className={codeClassName}>Resume Continuity</code> when loading that save. It does not restore the map clock or your project's actors and inventory.
             </p>
           </ApiEntry>
 
@@ -336,13 +419,13 @@ export default function APIReferenceDocs() {
 
           <ApiEntry name="UGameTimeSubsystem">
             <p>
-              World subsystem that tracks current in-game time using the configured calendar. Most projects configure it through settings and only read or set time from gameplay when needed.
+              World subsystem for the map clock. Read <code className={codeClassName}>GetDateTime()</code>, <code className={codeClassName}>GetTick()</code>, or <code className={codeClassName}>GetCalendar()</code> from C++. Map time persists independently of NPC checkpoint tokens; loading an older checkpoint does not rewind it.
             </p>
           </ApiEntry>
 
           <ApiEntry name="RNPCsUtilities">
             <p>
-              Utility class for world description loading, character lookup by GUID, and game-time updates. Most authoring workflows only need <code className={codeClassName}>SetGameWorldTime()</code> for explicit gameplay time changes.
+              C++ utilities including <code className={codeClassName}>SetGameWorldTime(World, Time)</code> for restoring a project-saved map time. World description settings are cached for the Unreal process; restart the editor/game after changing them. File-based integrations can call <code className={codeClassName}>LoadWorldDescription(Filepath)</code> before starting a new session to refresh its cached description. This does not update an active session.
             </p>
           </ApiEntry>
         </ApiSection>

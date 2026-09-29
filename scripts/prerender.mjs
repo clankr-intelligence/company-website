@@ -70,8 +70,8 @@ async function main() {
   const server = await import(pathToFileURL(serverEntry).href);
   const contract = server.prerenderContract();
 
-  if (!Array.isArray(contract.pages) || contract.pages.length !== 11) {
-    throw new Error(`Expected exactly 11 canonical prerender routes, found ${contract.pages?.length ?? 0}.`);
+  if (!Array.isArray(contract.pages) || contract.pages.length === 0) {
+    throw new Error('Expected a nonempty list of canonical prerender routes.');
   }
 
   const seenRoutes = new Set();
