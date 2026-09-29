@@ -139,6 +139,8 @@ Non-production gateway builds are deliberately compile-only. They must not uploa
 
 The gateway accepts a native URL-encoded form from the exact production website origin. It requires the selected artifact identifier, the exact approved-license SHA-256, and `acceptance=accepted`. Each publishable artifact and approved license identity must be explicitly registered in the Worker. A successful request streams only that artifact with attachment and no-store headers. The release pipeline owns immutable artifact metadata and must mark product objects for `download-page-clickwrap-v1`; the gateway fails closed when metadata does not match the registered identity.
 
+Gateway registration controls current download availability, independently of retained release history. Retire a package through reviewed removal of its gateway registration. Valid requests for a retired artifact then receive the existing `404` response before storage access; do not redirect them to another version. Retain its private immutable archive/checksum, approved public license, changelog, and permanent release records. Verify the current release still downloads correctly and record the retirement in the release status.
+
 ## Validation
 
 ### Pull-request preview
@@ -209,7 +211,7 @@ An operational rollback is immediate containment, not a lasting source-of-truth 
 
 Do not change DNS, redirect rules, R2 objects, mail records, or unrelated zone records for an ordinary application rollback. A bad product object or release reference is handled through the product release process rather than by altering unrelated website infrastructure.
 
-If the download gateway itself is unhealthy after a reviewed deployment, restore its last known-good deployment independently. During the initial R2-to-Worker custom-domain cutover only, the explicit emergency rollback is to remove the gateway custom domain and reconnect `downloads.clankrintelligence.com` to the R2 bucket. That rollback temporarily restores direct object access and therefore requires owner authorization and immediate follow-up; it is not the steady-state configuration.
+If the download gateway itself is unhealthy after a reviewed deployment, restore its last known-good deployment independently. Check the selected version's registry before rollback and verify retired-artifact rejection afterward; a rollback must not silently restore retired downloads. During the initial R2-to-Worker custom-domain cutover only, the explicit emergency rollback is to remove the gateway custom domain and reconnect `downloads.clankrintelligence.com` to the R2 bucket. That rollback temporarily restores direct object access and therefore requires owner authorization and immediate follow-up; it is not the steady-state configuration.
 
 ## Security and configuration boundaries
 

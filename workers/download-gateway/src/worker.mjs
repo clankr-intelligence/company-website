@@ -15,21 +15,6 @@ const SHA256_PATTERN = /^[0-9a-f]{64}$/;
 
 // Add a product release only after its final candidate bytes exist. Each entry
 // must pin the exact size, digest, object key, filename, and approved license.
-const REALISTICNPCS_LOCAL_UNREAL_0_4_0 = Object.freeze({
-  artifactId: 'realisticnpcs-local-unreal-v0.4.0-windows-x86_64',
-  key:
-    'releases/0.4.0/unreal/windows-x86_64/RealisticNPCs-Local-Unreal-v0.4.0-Windows-x86_64.zip',
-  fileName: 'RealisticNPCs-Local-Unreal-v0.4.0-Windows-x86_64.zip',
-  contentType: 'application/zip',
-  size: 7853380,
-  artifactSha256:
-    '5430ed62329c3709f0f1d791bc370725ecf4a2ec44ca151b0b92d8fd33944c42',
-  licenseSha256:
-    '2b514ea59e74f917fda45607f91b755399f2b7f286b9a6b37e259782391b9dd1',
-  licenseUrl:
-    'https://clankrintelligence.com/legal/realisticnpcs-local/0.4.0/LICENSE.txt',
-});
-
 const REALISTICNPCS_LOCAL_UNREAL_0_5_0 = Object.freeze({
   artifactId: 'realisticnpcs-local-unreal-v0.5.0-windows-x86_64',
   key:
@@ -46,8 +31,6 @@ const REALISTICNPCS_LOCAL_UNREAL_0_5_0 = Object.freeze({
 });
 
 const RELEASES = Object.freeze({
-  [REALISTICNPCS_LOCAL_UNREAL_0_4_0.artifactId]:
-    REALISTICNPCS_LOCAL_UNREAL_0_4_0,
   [REALISTICNPCS_LOCAL_UNREAL_0_5_0.artifactId]:
     REALISTICNPCS_LOCAL_UNREAL_0_5_0,
 });
